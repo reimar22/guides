@@ -30,7 +30,7 @@ This document should help you to circumvent the pitfalls during your first evalu
 	    - *currently DPoD is supported for test installations only*
 	- **SafeNet Trusted Access (STA)** - MFA via OpenID Connect (OIDC)
 	- **Linux Server**
-	    - **SafeNet IDPrime Virtual Server (IDPV Server)** - provided as Docker container
+	    - **SafeNet IDPrime Virtual Server (IDPV Server)** - provided as a Docker container
 	    - **MySQL** or **MariaDB** -  IDPV Server configuration
 	- **Windows Client** *with*
     	    - **SafeNet Authentication Client (SAC)** or **SafeNet Minidriver**
