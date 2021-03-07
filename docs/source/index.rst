@@ -599,6 +599,69 @@ Watch the following video to see the user experience when using IDPrime Virtual 
 
 
 
+Appendix
+^^^^^^^^
+Here are some further tips and tricks related to Linux and other topics.
+
+Logging
+*******
+
+Adjust **log4net.config** replacing **WARN** values with **DEBUG** value
+Use Docker logs to review possible issues
+  
+::
+  
+    docker logs idpv
+      
+Automatic Restart of IDPV Server
+********************************
+
+To make sure that IDPrime Virtual Server is working when the host is powered up you have to make sure that MariaDB and Docker services as well as the IDPV container are started automatically.
+
+::
+
+    systemctl enable MariaDB
+    systemctl enable docker
+    
+The **docker run** option **“--restart unless-stopped”** will restart the container whenever the Docker service is started (e.g. after a reboot of the host machine) unless the container was intentionally stopped by using **"docker stop idpv"**.
+
+MariaDB Commands
+****************
+
++---------------------+------------------------------------------------------------------+
+| List database users |	SELECT user,host FROM mysql.user;                                |
++---------------------+------------------------------------------------------------------+
+| List user rights    |	SHOW GRANTS FOR idpvuser@127.0.0.1;                              |
++---------------------+------------------------------------------------------------------+
+| List databases      |	SHOW DATABASES;                                                  |
++---------------------+------------------------------------------------------------------+
+| Change user password|	ALTER USER 'idpvuser'@'127.0.0.1' IDENTIFIED BY '<New_Password>';|
++---------------------+------------------------------------------------------------------+
+| Delete user	      |  DROP USER 'idpvuser'@'127.0.0.1';                               |
++---------------------+------------------------------------------------------------------+
+| Delete data base    |	DROP DATABASE IDPrimeVirtualServer;                              |
++---------------------+------------------------------------------------------------------+
+| Get current user    |	SELECT current_user() ;                                          |
++---------------------+------------------------------------------------------------------+
+| Get MariaDB version | > mysql -p                                                       |
++---------------------+------------------------------------------------------------------+
+
+ 
+Docker Commands
+***************
+
++--------------------------------------------+-------------------------------------------+
+| List stopped containers                    |	::                                       |
+|                                            |                                           |
+|					     |	    docker ps -a                         |
++--------------------------------------------+-------------------------------------------+
+| Remove container                           |	docker rm <Container-ID or name>         |
++--------------------------------------------+-------------------------------------------+
+| Remove all stopped containers              |	docker rm $(docker ps -aq)               |
++--------------------------------------------+-------------------------------------------+
+| Automatically restart the Docker container |	docker run --restart unless-stopped […]  |
++--------------------------------------------+-------------------------------------------+
+
 Indices and tables
 ==================
 
