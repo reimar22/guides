@@ -1,0 +1,898 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>IDPrime Virtual Evaluation Setup Guide with SafeNet DPoD &mdash; IDPV Installation Guide 0.0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="_static/sphinxcontrib-images/LightBox2/lightbox2/css/lightbox.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/clipboard.min.js"></script>
+        <script src="_static/copybutton.js"></script>
+        <script src="_static/sphinxcontrib-images/LightBox2/lightbox2/js/jquery-1.11.0.min.js"></script>
+        <script src="_static/sphinxcontrib-images/LightBox2/lightbox2/js/lightbox.min.js"></script>
+        <script src="_static/sphinxcontrib-images/LightBox2/lightbox2-customize/jquery-noconflict.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="#" class="icon icon-home"> IDPV Installation Guide
+          
+
+          
+            
+            <img src="_static/thales_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">IDPrime Virtual Evaluation Setup Guide with SafeNet DPoD</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#versions">Versions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#docker">Docker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mariadb">MariaDB</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#database-installation">Database installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#create-database-for-idpv">Create Database for IDPV</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#create-idpv-user">Create IDPV User</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#installation-parameters-mariadb">Installation Parameters (MariaDB)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#safenet-trusted-access">SafeNet Trusted Access</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#create-idpv-user-groups">Create IDPV User Groups</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#create-new-oidc-application">Create new OIDC Application</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#installation-parameters-sta">Installation Parameters (STA)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#dpod">DPoD</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#dpod-configuration">DPoD Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#installation-parameters-dpod">Installation Parameters (DPoD)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#idprime-virtual-server">IDPrime Virtual Server</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#installation">Installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#configuration">Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#appsetting-yml">appsetting.yml</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#idp-configuration-json">idp-configuration.json</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#policy-configuration-json">policy-configuration.json</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#log4net-config">log4net.config</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#running-the-server">Running the Server</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tenant-creation">Tenant Creation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#installation-parameters-idpv">Installation Parameters (IDPV)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#idprime-virtual-client">IDPrime Virtual Client</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">IDPV Installation Guide</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="#" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>IDPrime Virtual Evaluation Setup Guide with SafeNet DPoD</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="idprime-virtual-evaluation-setup-guide-with-safenet-dpod">
+<h1>IDPrime Virtual Evaluation Setup Guide with SafeNet DPoD<a class="headerlink" href="#idprime-virtual-evaluation-setup-guide-with-safenet-dpod" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+</div>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>This document should help you to circumvent the pitfalls during your first evaluation installation of IDPrime Virtual. The main challenge with this solution is the fact that it combines so many modules in one solution:</p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="simple">
+<dt><strong>SafeNet Luna Network HSM</strong> <em>or</em> <strong>Data Protection on Demand (DPoD)</strong></dt><dd><ul>
+<li><p><em>currently DPoD is supported for test installations only</em></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p><strong>SafeNet Trusted Access (STA)</strong> - MFA via OpenID Connect (OIDC)</p></li>
+<li><dl class="simple">
+<dt><strong>Linux Server</strong></dt><dd><ul>
+<li><p><strong>SafeNet IDPrime Virtual Server (IDPV Server)</strong> - provided as Docker container</p></li>
+<li><p><strong>MySQL</strong> or <strong>MariaDB</strong> -  IDPV Server configuration</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>Windows Client</strong> <em>with</em></dt><dd><ul>
+<li><p><strong>SafeNet Authentication Client (SAC)</strong> or <strong>SafeNet Minidriver</strong></p></li>
+<li><p><strong>SafeNet IDPrime Virtual Client (IDPV Client)</strong></p></li>
+<li><p><strong>SafeNet IDPrime Virtual Credential Provider</strong></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This document should not replace the “IDPrime Virtual Solution Guide” that is part of the IDPV software package. However, it tries to provide a brief guidance concerning the steps required for a standard evaluation setup and might help to avoid general pitfalls.</p>
+</div>
+</div>
+<div class="section" id="versions">
+<h2>Versions<a class="headerlink" href="#versions" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="simple">
+<dt><strong>CentOS 7.9</strong> (or similar Linux distro)</dt><dd><ul>
+<li><p><strong>Docker 20.10.1</strong></p></li>
+<li><p><strong>MariaDB 10.5.8</strong> (or MySQL)</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>IDPrime Virtual Server 2.1</strong> <a class="reference external" href="https://supportportal.gemalto.com/csm?id=kb_article_view&amp;sys_kb_id=62d11890dbff949080b23452399619e9&amp;sysparm_article=KB0023000">(KB0023000)</a></dt><dd><p>-<em>There is a Full version as well as a Trial version (with 50 licenses)</em></p>
+</dd>
+</dl>
+</li>
+<li><p><strong>IDPrime Virtual Client 2.0.1</strong> (also in <a class="reference external" href="https://supportportal.gemalto.com/csm?id=kb_article_view&amp;sys_kb_id=62d11890dbff949080b23452399619e9&amp;sysparm_article=KB0023000">KB0023000</a>)</p></li>
+<li><p><strong>SAC 10.8 R2 for Windows</strong> <a class="reference external" href="https://supportportal.gemalto.com/csm?id=kb_article_view&amp;sys_kb_id=0e29e77ddb1ed01091a974233996196d&amp;sysparm_article=KB0022544">(KB0022544)</a></p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
+<p>You have to prepare some components before you are able to install the <strong>IDPrime Virtual Server</strong>.</p>
+</div>
+<div class="section" id="docker">
+<h2>Docker<a class="headerlink" href="#docker" title="Permalink to this headline">¶</a></h2>
+<p>IDPrime Virtual Server is provided as a Docker image. To install and run the latest release of the Docker software you can follow the documentation on the <a class="reference external" href="https://docs.docker.com/engine/install/centos/">Docker web site</a>. The cleanest way would be to add the official repo using the “yum-config-manager” which is part of the “yum-utils” and might have to be installed first:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">yum</span> <span class="n">install</span> <span class="o">-</span><span class="n">y</span> <span class="n">yum</span><span class="o">-</span><span class="n">utils</span>
+
+<span class="n">yum</span><span class="o">-</span><span class="n">config</span><span class="o">-</span><span class="n">manager</span> <span class="o">--</span><span class="n">add</span><span class="o">-</span><span class="n">repo</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">download</span><span class="o">.</span><span class="n">docker</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">linux</span><span class="o">/</span><span class="n">centos</span><span class="o">/</span>
+<span class="n">docker</span><span class="o">-</span><span class="n">ce</span><span class="o">.</span><span class="n">repo</span>
+
+<span class="n">yum</span> <span class="n">install</span> <span class="n">docker</span><span class="o">-</span><span class="n">ce</span> <span class="n">docker</span><span class="o">-</span><span class="n">ce</span><span class="o">-</span><span class="n">cli</span> <span class="n">containerd</span><span class="o">.</span><span class="n">io</span>
+</pre></div>
+</div>
+<p>After the installation of Docker you have to start the service:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">systemctl</span> <span class="n">start</span> <span class="n">docker</span>
+
+<span class="n">docker</span> <span class="n">info</span>
+</pre></div>
+</div>
+<p>Use the following command to get further information on the Docker “bridge” network which will help you identify the container IPs later on:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span> <span class="n">network</span> <span class="n">inspect</span> <span class="n">bridge</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="mariadb">
+<h2>MariaDB<a class="headerlink" href="#mariadb" title="Permalink to this headline">¶</a></h2>
+<p>IDPrime Virtual Server stores all its configuration information in a database. MariaDB is a fork of the MySQL database under full GPL-2 license. In this scenario it is installed on the same CentOS server as the Docker environment. MySQL can also be used. Please follow the installation instructions of your selected Database. We will use MariaDB.</p>
+<div class="section" id="database-installation">
+<h3>Database installation<a class="headerlink" href="#database-installation" title="Permalink to this headline">¶</a></h3>
+<p>To install the latest version on a CentOS 7 server you can follow the description on the <a class="reference external" href="https://mariadb.com/resources/blog/installing-mariadb-10-on-centos-7-rhel-7/">MariaDB website</a> as the CentOS repository only contains MariaDB 5.5. You can use the following commands to install the latest 10.x version:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">wget</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">downloads</span><span class="o">.</span><span class="n">mariadb</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">MariaDB</span><span class="o">/</span><span class="n">mariadb_repo_setup</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">chmod</span> <span class="o">+</span><span class="n">x</span> <span class="n">mariadb_repo_setup</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">mariadb_repo_setup</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">yum</span> <span class="n">install</span> <span class="n">MariaDB</span><span class="o">-</span><span class="n">server</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="create-database-for-idpv">
+<h3>Create Database for IDPV<a class="headerlink" href="#create-database-for-idpv" title="Permalink to this headline">¶</a></h3>
+<p>Create a database for IDPV named <em>IDPrimeVirtualServer</em>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mysql</span> <span class="o">-</span><span class="n">u</span> <span class="n">root</span> <span class="o">-</span><span class="n">p</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">CREATE</span> <span class="n">DATABASE</span> <span class="n">IDPrimeVirtualServer</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="create-idpv-user">
+<h3>Create IDPV User<a class="headerlink" href="#create-idpv-user" title="Permalink to this headline">¶</a></h3>
+<p>You have to <strong>manually create the user account</strong> for IDPrime Virtual Server. The following commands will create a user with the required access rights and network restrictions (given the default Docker “bridge” network is 172.17.0.0/16):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">GRANT</span> <span class="n">SELECT</span><span class="p">,</span> <span class="n">INSERT</span><span class="p">,</span> <span class="n">UPDATE</span><span class="p">,</span> <span class="n">DELETE</span><span class="p">,</span> <span class="n">CREATE</span><span class="p">,</span> <span class="n">REFERENCES</span><span class="p">,</span> <span class="n">INDEX</span><span class="p">,</span> <span class="n">ALTER</span> <span class="n">ON</span> <span class="n">IDPrimeVirtualServer</span><span class="o">.*</span> <span class="n">TO</span> <span class="s1">&#39;idpvuser&#39;</span><span class="o">@</span><span class="s1">&#39;172.17.%&#39;</span> <span class="n">IDENTIFIED</span> <span class="n">BY</span> <span class="s1">&#39;&lt;db-password&gt;&#39;</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="installation-parameters-mariadb">
+<h3>Installation Parameters (MariaDB)<a class="headerlink" href="#installation-parameters-mariadb" title="Permalink to this headline">¶</a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 39%" />
+<col style="width: 20%" />
+<col style="width: 41%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Database Server IP</p></td>
+<td><p>172.17.0.1</p></td>
+<td><p>Standard Docker Host Network</p></td>
+</tr>
+<tr class="row-odd"><td><p>Database Server Port Number</p></td>
+<td><p>3306</p></td>
+<td><p>Default port for MariaDB</p></td>
+</tr>
+<tr class="row-even"><td><p>Database User</p></td>
+<td><p>idpvuser</p></td>
+<td><p>Can be changed as required</p></td>
+</tr>
+<tr class="row-odd"><td><p>Database Password</p></td>
+<td><p>&lt;db-password&gt;</p></td>
+<td><p>Set during database creation</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="safenet-trusted-access">
+<h2>SafeNet Trusted Access<a class="headerlink" href="#safenet-trusted-access" title="Permalink to this headline">¶</a></h2>
+<p>IDPrime Virtual relies on <strong>multi-factor authentication via Open ID Connect (OIDC)</strong>. For this you need to prepare a valid STA account to authenticate against. You also have to collect some parameters required later during the configuration process.</p>
+<div class="section" id="create-idpv-user-groups">
+<h3>Create IDPV User Groups<a class="headerlink" href="#create-idpv-user-groups" title="Permalink to this headline">¶</a></h3>
+<p>Under <strong>Groups &gt; Group Maintenance</strong> create three IDPV access groups</p>
+<a class=""
+               data-lightbox="group-6ef43ae8-6a55-420e-8567-e78e7bd42b6a"
+               href="_images/Picture11.png"
+               title=""
+               data-title=""
+               ><img src="_images/Picture11.png"
+                     class="align-center"
+                     width="100%"
+                     height="auto"
+                     alt=""/>
+                </a></div>
+<div class="section" id="create-new-oidc-application">
+<h3>Create new OIDC Application<a class="headerlink" href="#create-new-oidc-application" title="Permalink to this headline">¶</a></h3>
+<p>In the STA Console create a new application by following these steps:</p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="simple">
+<dt>Go to the <strong>Applications</strong> tab by clicking  <img alt="t" src="_images/Picture2.png" /></dt><dd></dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Click  <img alt="+" src="_images/Picture3.png" /> and serach for <strong>Generic Template</strong></dt><dd></dd>
+</dl>
+</li>
+<li><p>Add the template and rename it to <strong>IDPrime Virtual</strong></p></li>
+<li><p>Select <em>OIDC</em> as <strong>Integration Protocol</strong></p></li>
+<li><p>Leave the <strong>Access Type</strong> as <em>Confidential</em></p></li>
+<li><dl class="simple">
+<dt>Under STA Setup set the following parameters:</dt><dd><ul>
+<li><p><strong>ALLOWED FLOW TYPE:</strong> “Authorization Code Flow”</p></li>
+<li><p><strong>VALID REDIRECT URL:</strong> &lt;<a class="reference external" href="http://my.idpv.com">http://my.idpv.com</a>&gt; (any HTTP URL)</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>Under <strong>User Identity Claims</strong> use <em>Add claim</em> to create a new claim called “groups” and set the mapping to <strong>Groups</strong>:</p></li>
+</ul>
+</div></blockquote>
+<a class=""
+               data-lightbox="group-6da3e921-fc73-40cd-9bfd-04e7985fe0bf"
+               href="_images/Picture91.png"
+               title="Assign the new IDPV Application to the relevant User Groups"
+               data-title="Assign the new IDPV Application to the relevant User Groups"
+               ><img src="_images/Picture91.png"
+                     class="align-center"
+                     width="100%"
+                     height="auto"
+                     alt=""/>
+                </a></div>
+<div class="section" id="installation-parameters-sta">
+<h3>Installation Parameters (STA)<a class="headerlink" href="#installation-parameters-sta" title="Permalink to this headline">¶</a></h3>
+<p><strong>Part 1:</strong> From the Generic Template Setup section of the STA application settings get the following information which is required later during the further configuration:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 28%" />
+<col style="width: 72%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Example</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Client ID</strong></p></td>
+<td><p>18a6bb02-d311-4f32-a6d0-c65391acc13d</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Client Secret</strong></p></td>
+<td><p>e340dae4-bcab-4fa5-b90a-525b188c79f9</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Valid Redirect URL</strong></p></td>
+<td><p><a class="reference external" href="http://my.idpv.com">http://my.idpv.com</a></p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Authorization End Point URL</strong></p></td>
+<td><p><a class="reference external" href="https://idp.eu.safenetid.com/auth/realms/D92SU4EJGP-STA/protocol/openid-connect/auth">https://idp.eu.safenetid.com/auth/realms/D92SU4EJGP-STA/protocol/openid-connect/auth</a></p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Issuer URL</strong></p></td>
+<td><p><a class="reference external" href="https://idp.eu.safenetid.com/auth/realms/D92SU4EJGP-STA">https://idp.eu.safenetid.com/auth/realms/D92SU4EJGP-STA</a></p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Part 2:</strong> Copy above <strong>“Authorization End Point URL”</strong>, paste it into your web browser, replace <strong>“/auth”</strong> with <strong>“/certs”</strong> and press enter. If you are using Firefox, the information will displayed in a readable format, other browsers will display a web page in JSON format.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The JSON output is hardly readable so you can copy and paste the web page content into a JSON formatter, e.g. <a class="reference external" href="https://jsonformatter.org/">https://jsonformatter.org/</a>. To keep the data local you could also use a plugin available for Notepad++ (e.g. JSTool).</p>
+</div>
+<p>From this page you need the following <strong>STA public key parameters</strong> that will be required later:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 28%" />
+<col style="width: 72%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Example</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>“n”</strong> (Key Modulus)</p></td>
+<td><p>y1nA5wvYoTlIPyPxjO62soODuJms96CrNp9UqJIcr0ebY6seW1lGY1zcZ3qdHUtoCFWS0gD7RBdbWjRkHzQE
+H8s5dkPrTZrjmeQ6yhhKZ3pxwIhkosZBZvsImgExzc0Z1u0ziJwbMEpIH2jOiOh8-zBtb0xSmqpQ_g0P3uct
+fXHptEIUEhri4tt6sPg6-LOfVXIEyNdWozjprXSWQ3iWjwO2dP5JSblucrta-ZnPLomQszalrb-Emzxcs8RK
+dIzq5jh9ZCnejoe1fET8bwhPZx60BJiBs8Obdjs3OX4raGg04z_2B61T_vMZKIVyYVuO3m-wWt58</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>“e”</strong> (Key Exponent)</p></td>
+<td><p>AQAB</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>“kid”</strong> (Key ID)</p></td>
+<td><p>ohB2F9_d-4xAaQeKtBxmayRuC4PtkDthWliCrLrKJ-Q</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="dpod">
+<h2>DPoD<a class="headerlink" href="#dpod" title="Permalink to this headline">¶</a></h2>
+<p>You can either use <strong>Data Protection on Demand (DPoD)</strong> or a <strong>SafeNet Luna Network HSM</strong> partition as the “Root of Trust” for the IDPrime Virtual Server. In this guide, we’ll use <strong>DPoD</strong></p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Currently <strong>DPoD is only supported in test and evaluation scenarios</strong> due to the fact that it doesn’t support Key Export mode. Therefore the           size of the partition limits the number of virtual smart card keys that can be stored.
+However, there will be a new <strong>DPoD service tile with Key Export functionality</strong> in Q1/2021.</p>
+</div>
+<div class="section" id="dpod-configuration">
+<h3>DPoD Configuration<a class="headerlink" href="#dpod-configuration" title="Permalink to this headline">¶</a></h3>
+<p>Create a new <strong>“HSM on Demand”</strong> service with FIPS deactivated and download the client package:</p>
+<a class=""
+               data-lightbox="group-8241c12d-6abd-4dad-955d-3f3bba7c221f"
+               href="_images/Picture51.png"
+               title=""
+               data-title=""
+               ><img src="_images/Picture51.png"
+                     class="align-center"
+                     width="100%"
+                     height="auto"
+                     alt=""/>
+                </a><div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You have to make sure that you select the <strong>“Remove FIPS restrictions”</strong> option as FIPS mode is currently not supported with DPoD due to a known           limitation in the service.</p>
+</div>
+<p>Create a <strong>dpod</strong> folder in the <strong>/tmp</strong> directory on your Linux host</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">dpod</span>
+</pre></div>
+</div>
+<p>Download and unpack the DPoD client in your “dpod” folder and deploy a copy of these files in a new folder “/var/thales/hsm” which will later be used by your Docker container:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">unzip</span> <span class="n">setup</span><span class="o">-</span><span class="n">dpod</span><span class="o">.</span><span class="n">zip</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">tar</span> <span class="n">xf</span> <span class="n">cvclient</span><span class="o">-</span><span class="nb">min</span><span class="o">.</span><span class="n">tar</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">chmod</span> <span class="n">a</span><span class="o">+</span><span class="n">x</span> <span class="n">setenv</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>mkdir –p /var/thales/hsm
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>cp –r * /var/thales/hsm/
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Keeping a copy of the DPoD files outside the “/var/thales/hsm” folder allows running the HSM tools independently from the Docker instance (due to different configuration paths in the “Chrystoki.conf” instances).</p>
+</div>
+<p>To <strong>initialize the DPoD instance</strong> you have to perform the following steps:</p>
+<blockquote>
+<div><ul>
+<li><p><strong>Set the environment variables</strong> from within the <strong>“dpod”</strong> folder (<strong>NOT</strong> in the “/var/thales/hsm” folder):</p>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">source</span> <span class="o">./</span><span class="n">setenv</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p>Start <strong>“lunacm”</strong> and <strong>initialize the partition</strong> as well as the Partition Security Officer (“po”) and Crypto Officer (“co”) roles:</p>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="mi">64</span><span class="o">/</span><span class="n">lunacm</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">partition</span> <span class="n">init</span> <span class="o">-</span><span class="n">label</span> <span class="n">IDPrimeVirtual</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p><strong>Follow the on-screen instruction</strong></p>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">role</span> <span class="n">login</span> <span class="o">-</span><span class="n">n</span> <span class="n">po</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">role</span> <span class="n">init</span> <span class="o">-</span><span class="n">n</span> <span class="n">co</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">role</span> <span class="n">login</span> <span class="o">-</span><span class="n">n</span> <span class="n">co</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">role</span> <span class="n">changepw</span> <span class="o">-</span><span class="n">n</span> <span class="n">co</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">role</span> <span class="n">logout</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+<p>The full documentation of DPoD can be found on the <a class="reference external" href="https://thalesdocs.com/dpod/">Thales Documentation Hub.</a></p>
+</div>
+<div class="section" id="installation-parameters-dpod">
+<h3>Installation Parameters (DPoD)<a class="headerlink" href="#installation-parameters-dpod" title="Permalink to this headline">¶</a></h3>
+<p>For the installation of <strong>IDPrime Virtual</strong> Server you need this information from your DPoD environment:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 32%" />
+<col style="width: 16%" />
+<col style="width: 52%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Example</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Token Serial Number</strong></p></td>
+<td><p>1334054146809</p></td>
+<td><p>Listed after <strong>“lunacm”</strong> start</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Crypto Officer Password</strong></p></td>
+<td><p>&lt;CO-Password&gt;</p></td>
+<td><p>Password set in the last step of the partition init</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="idprime-virtual-server">
+<h2>IDPrime Virtual Server<a class="headerlink" href="#idprime-virtual-server" title="Permalink to this headline">¶</a></h2>
+<p>The following sections describe the installation and configuration of the <strong>IDPrime Virtual Server</strong>.</p>
+<div class="section" id="id2">
+<h3>Overview<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<p>There are two different versions of IDPrime Virtual Server available:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><strong>Trial Version</strong> – allows test and evaluation installations without additional licenses. However, this version is limited to 50 virtual smart cards</p></li>
+<li><p><strong>Full Version</strong> – requires a dedicated license</p></li>
+</ul>
+</div></blockquote>
+<p>The current version is available from the <a class="reference external" href="https://supportportal.gemalto.com/csm?id=csm_product&amp;sys_id=16e029a94f0c3b48102400818110c725">Thales Support Portal</a> (requires valid service account).</p>
+</div>
+<div class="section" id="installation">
+<h3>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h3>
+<p>Create an <strong>idpv</strong> folder in <strong>/tmp</strong> on your Linux host</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">idpv</span>
+</pre></div>
+</div>
+<p>Download and unzip <strong>IDPrime Virtual Server</strong> package in <strong>idpv</strong> folder and load the Docker image using this command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">unzip</span> <span class="n">Thales_IDPrimeVirtualServer</span><span class="o">-</span><span class="n">v2</span><span class="o">.</span><span class="mf">1.0</span><span class="o">.</span><span class="mf">132.</span><span class="n">zip</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span> <span class="n">load</span> <span class="o">-</span><span class="n">i</span> <span class="n">virtual_idprime_server</span><span class="o">.</span><span class="n">tar</span><span class="o">.</span><span class="n">gz</span>
+</pre></div>
+</div>
+<p>You can verify that the image was imported correctly:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span> <span class="n">images</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="configuration">
+<h3>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h3>
+<p>There are several configuration files that have to be provided in your <strong>“/var/thales/config”</strong> folder on your Docker host. The configuration templates can be found in your <strong>“/tmp/idpv/config”</strong> folder.</p>
+</div>
+<div class="section" id="appsetting-yml">
+<h3>appsetting.yml<a class="headerlink" href="#appsetting-yml" title="Permalink to this headline">¶</a></h3>
+<p>The main <strong>configuration parameters for IDPrime Virtual Server</strong> are defined in this file. There are two different templates for <strong>HTTP</strong> and <strong>HTTPS</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># This is a yml file. Values are in Key: Value format. Values are not required to be put in qoutes single&#39; or double &quot;</span>
+<span class="n">DatabaseConfig</span><span class="p">:</span>
+  <span class="n">DatabaseProvider</span><span class="p">:</span> <span class="n">MariaDB</span>   <span class="c1"># (Mandatory) Database provider name. List of supported databases are &#39;MySQL, MariaDB and MSSQL&#39;</span>
+  <span class="n">ConnectionString</span><span class="p">:</span> <span class="n">server</span><span class="o">=</span><span class="mf">172.17</span><span class="o">.</span><span class="mf">0.1</span><span class="p">;</span><span class="n">port</span><span class="o">=</span><span class="mi">3306</span><span class="p">;</span> <span class="n">User</span><span class="o">=</span><span class="n">idpvuser</span><span class="p">;</span> <span class="n">Password</span><span class="o">=&lt;</span><span class="n">db</span><span class="o">-</span><span class="n">password</span><span class="o">&gt;</span><span class="p">;</span> <span class="n">Database</span><span class="o">=</span><span class="n">IDPrimeVirtualServer</span><span class="p">;</span>   <span class="c1"># (Mandatory) Database connection string</span>
+<span class="n">HSMConfig</span><span class="p">:</span>
+<span class="n">HSMProvider</span><span class="p">:</span> <span class="n">Dpod</span>   <span class="c1"># (Mandatory) HSM provider name. Supported providers are &#39;Luna, Dpod ,KeySecure&#39; . Note- Dpod and KeySecure do not support offline virtual token.</span>
+<span class="n">TokenSerial</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">token</span><span class="o">-</span><span class="n">serial</span><span class="o">&gt;</span>   <span class="c1"># (Mandatory) HSM partition serial number.  #Leave it as blank in case of Key Secure</span>
+<span class="n">TokenPin</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">co</span><span class="o">-</span><span class="n">password</span><span class="o">&gt;</span>   <span class="c1"># (Mandatory) HSM crypto officer (co) pin. OR #In case of KeySecure the value must be in  format user:password</span>
+<span class="n">WebServerConfig</span><span class="p">:</span>
+<span class="n">ServerPublicUrl</span><span class="p">:</span> <span class="n">http</span><span class="p">:</span><span class="o">//&lt;</span><span class="n">ip</span><span class="o">-</span><span class="ow">or</span><span class="o">-</span><span class="n">hostname</span><span class="o">&gt;</span>   <span class="c1"># (Mandatory) It is mandatory to provide IDPV server url (public/intranet) which is being accessible from client machines.</span>
+<span class="n">TlsCertificateThumbprint</span><span class="p">:</span>   <span class="c1"># (Optional) Thumbprint is not required in case of HTTP url. However it is recommended to host IDPV server on Https url and to provide thumbprint value of Server TLS certificate.</span>
+<span class="n">Kestrel</span><span class="p">:</span>   <span class="c1"># It is recommended to configure Https settings.</span>
+<span class="n">EndPoints</span><span class="p">:</span>
+<span class="n">Http</span><span class="p">:</span>
+  <span class="n">Url</span><span class="p">:</span> <span class="n">http</span><span class="p">:</span><span class="o">//*</span><span class="p">:</span><span class="mi">5000</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="idp-configuration-json">
+<h3>idp-configuration.json<a class="headerlink" href="#idp-configuration-json" title="Permalink to this headline">¶</a></h3>
+<p>The <strong>IDP connection parameters</strong> collected in the “STA” section of this document are defined in this configuration file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="s2">&quot;IdpPublicKeyModulus&quot;</span><span class="p">:</span><span class="s2">&quot;y1nA5wvYoTlIPyPxjO62soODuJms96CrNp9UqJIcr0ebY6seW1lGY1zcZ3qdHUtoCFWS0gD7RBdbWjRkHzQEH8s5dkPrTZrjmeQ6yhhKZ3pxwIhkosZBZvsImgExzc0Z1u0ziJwbMEpIH2jOiOh8-zBtb0xSmqpQ_g0P3uctfXHptEIUE hri4tt6sPg6-LOfVXIEyNdWozjprXSWQ3iW6jwO2dP5JSblucrta-ZnPLomQszalrb-Emzxcs8RKdIzq5jh9ZCnejoe1fET8bgH aTwhPZxMD6Oi0BJiBs8Obdjs3OX4raGg04z_2B61T_vMZKIVyYVuO3m-wWt58&quot;</span><span class="p">,</span>
+<span class="s2">&quot;IdpPublicKeyExponent&quot;</span><span class="p">:</span><span class="s2">&quot;AQAB&quot;</span><span class="p">,</span>
+<span class="s2">&quot;IdpKeyId&quot;</span><span class="p">:</span><span class="s2">&quot;ohB2F9_d-4xAaQeKtBxmayRuC4PtkDthWliCrLrKJ-Q&quot;</span><span class="p">,</span>
+<span class="s2">&quot;IdpClientId&quot;</span><span class="p">:</span><span class="s2">&quot;18a6bb02-d311-4f32-a6d0-c65391acc13d&quot;</span><span class="p">,</span>
+<span class="s2">&quot;IdpIssuerUrl&quot;</span><span class="p">:</span><span class="s2">&quot;https://idp.eu.safenetid.com/auth/realms/D92SU4EJGP-STA&quot;</span><span class="p">,</span>
+<span class="s2">&quot;IdpRedirectUrl&quot;</span><span class="p">:</span><span class="s2">&quot;http://my.idpv.com&quot;</span><span class="p">,</span>
+<span class="s2">&quot;JwtExpiration&quot;</span><span class="p">:</span><span class="s2">&quot;0000001e&quot;</span><span class="p">,</span>
+<span class="s2">&quot;JwtGroupClaim&quot;</span><span class="p">:</span><span class="s2">&quot;groups&quot;</span><span class="p">,</span>
+<span class="s2">&quot;JwtUserClaim&quot;</span><span class="p">:</span><span class="s2">&quot;preferred_username&quot;</span><span class="p">,</span>
+<span class="s2">&quot;JwtAdminWhiteList&quot;</span><span class="p">:</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="s2">&quot;IDPrimeVirtualAdmin&quot;</span><span class="p">:</span><span class="s2">&quot;IDPV_Admins&quot;</span><span class="p">,</span>
+<span class="s2">&quot;IDPrimeVirtualUser&quot;</span><span class="p">:</span><span class="s2">&quot;IDPV_Users&quot;</span><span class="p">,</span>
+<span class="s2">&quot;OfflineTokenEnabledGroup&quot;</span><span class="p">:</span><span class="s2">&quot;IDPV_OfflineEnabled&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="policy-configuration-json">
+<h3>policy-configuration.json<a class="headerlink" href="#policy-configuration-json" title="Permalink to this headline">¶</a></h3>
+<p>This file defines some <strong>policy settings</strong> for IDPrime Virtual:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="s2">&quot;UserPinPolicy&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">&quot;MaxRetries&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+      <span class="s2">&quot;IsMustChange&quot;</span><span class="p">:</span> <span class="n">false</span>
+   <span class="p">},</span>
+   <span class="s2">&quot;AdminPinPolicy&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">&quot;MaxRetries&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+      <span class="s2">&quot;IsMustChange&quot;</span><span class="p">:</span> <span class="n">false</span>
+   <span class="p">},</span>
+   <span class="s2">&quot;OfflineTokenPolicy&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">&quot;ValidityDurationInHours&quot;</span><span class="p">:</span> <span class="mi">120</span><span class="p">,</span>
+      <span class="s2">&quot;PrivateKeyExportLevel&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span>
+   <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="log4net-config">
+<h3>log4net.config<a class="headerlink" href="#log4net-config" title="Permalink to this headline">¶</a></h3>
+<p>This configuration file allows setting the <strong>log levels</strong> for different modules to “ERROR”, “WARN”, “INFO” or “DEBUG”.</p>
+</div>
+</div>
+<div class="section" id="running-the-server">
+<h2>Running the Server<a class="headerlink" href="#running-the-server" title="Permalink to this headline">¶</a></h2>
+<p>To run the <strong>Docker instance</strong> you have to execute the following command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span> <span class="n">run</span> <span class="o">-</span><span class="n">d</span> <span class="o">--</span><span class="n">name</span> <span class="n">idpv</span> <span class="o">-</span><span class="n">it</span> <span class="o">-</span><span class="n">v</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">thales</span><span class="o">/</span><span class="n">config</span><span class="p">:</span><span class="o">/</span><span class="n">publish</span><span class="o">/</span><span class="n">Config</span><span class="o">/</span> <span class="o">-</span><span class="n">v</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">thales</span><span class="o">/</span><span class="n">hsm</span><span class="p">:</span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">hsm</span><span class="o">/</span> <span class="o">-</span><span class="n">p</span> <span class="mi">80</span><span class="p">:</span><span class="mi">5000</span> <span class="o">-</span><span class="n">p</span> <span class="mi">443</span><span class="p">:</span><span class="mi">5001</span> <span class="o">--</span><span class="n">restart</span> <span class="n">unless</span><span class="o">-</span><span class="n">stopped</span> <span class="n">idprimevirtual_server</span><span class="p">:</span><span class="mf">2.1</span><span class="o">.</span><span class="mf">0.132</span>
+</pre></div>
+</div>
+<p>The following <strong>“docker run”</strong> command switches might be helpful to understand:</p>
+<blockquote>
+<div><ul>
+<li><dl>
+<dt><strong>-d</strong> This will “detach” the container from the bash console to run it in the backgro</dt><dd><ul>
+<li><p>Use the following command to check the console output of a detached container</p>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span> <span class="n">logs</span> <span class="n">idpv</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p>Otherwise, the run-command will remain open to display messages on the console which might be helpful when running it the first time to immediately see if the server starts without errors</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p><strong>–restart unless-stopped</strong> Will restart the Docker container on server reboot, unless the container is in the stopped state</p></li>
+</ul>
+</div></blockquote>
+<p>In case changes have to be made to the configuration, the Docker container will have to be stopped, removed and run again</p>
+<p>To stop the container:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span> <span class="n">stop</span> <span class="n">idpv</span>
+</pre></div>
+</div>
+<p>To remove the container:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span> <span class="n">rm</span> <span class="n">idpv</span>
+</pre></div>
+</div>
+<p>Make the required changes to the configuration and execute the Docker <strong>run</strong> command to start <strong>IDPV Server</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span> <span class="n">run</span> <span class="o">-</span><span class="n">d</span> <span class="o">--</span><span class="n">name</span> <span class="n">idpv</span> <span class="o">-</span><span class="n">it</span> <span class="o">-</span><span class="n">v</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">thales</span><span class="o">/</span><span class="n">config</span><span class="p">:</span><span class="o">/</span><span class="n">publish</span><span class="o">/</span><span class="n">Config</span><span class="o">/</span> <span class="o">-</span><span class="n">v</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">thales</span><span class="o">/</span><span class="n">hsm</span><span class="p">:</span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">hsm</span><span class="o">/</span> <span class="o">-</span><span class="n">p</span> <span class="mi">80</span><span class="p">:</span><span class="mi">5000</span> <span class="o">-</span><span class="n">p</span> <span class="mi">443</span><span class="p">:</span><span class="mi">5001</span> <span class="o">--</span><span class="n">restart</span> <span class="n">unless</span><span class="o">-</span><span class="n">stopped</span> <span class="n">idprimevirtual_server</span><span class="p">:</span><span class="mf">2.1</span><span class="o">.</span><span class="mf">0.132</span>
+</pre></div>
+</div>
+<p>See Docker web site for the full documentation of <a class="reference external" href="https://docs.docker.com/engine/reference/run/">“docker run”.</a></p>
+<div class="section" id="tenant-creation">
+<h3>Tenant Creation<a class="headerlink" href="#tenant-creation" title="Permalink to this headline">¶</a></h3>
+<p>After the initial configuration of the IDPrime Virtual Server you have to create your first tenant on the server instance. IDPV Server supports multiple tenants. Therefore you have to create separate IDP and policy configuration files for each tenant.</p>
+<p>To start the “SetupTenant” script you have to open a “bash” shell within the container:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span> <span class="n">exec</span> <span class="o">-</span><span class="n">it</span> <span class="n">idpv</span> <span class="n">bash</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">setuptenant</span><span class="o">/</span><span class="n">Thales</span><span class="o">.</span><span class="n">IDPrimeVirtual</span><span class="o">.</span><span class="n">SetupTenant</span> <span class="n">create</span> <span class="o">-</span><span class="n">i</span> <span class="o">/</span><span class="n">publish</span><span class="o">/</span><span class="n">Config</span><span class="o">/</span><span class="n">idp</span><span class="o">-</span><span class="n">configuration</span><span class="o">.</span><span class="n">json</span> <span class="o">-</span><span class="n">p</span> <span class="o">/</span><span class="n">publish</span><span class="o">/</span><span class="n">Config</span><span class="o">/</span><span class="n">policy</span><span class="o">-</span><span class="n">configuration</span><span class="o">.</span><span class="n">json</span> <span class="o">-</span><span class="n">a</span> <span class="s2">&quot;sta -client-secret&gt;&quot;</span> <span class="o">-</span><span class="n">k</span> <span class="n">false</span>
+</pre></div>
+</div>
+<p>After successful execution of the script it will display the <strong>tenant information</strong> generated from the configuration files. You will find this information also in a file with the name “&lt;TenantId&gt;.txt” in the folder “/publish/Tenant/”.</p>
+<p>You can also call the script with the “list” parameter to get all existing tenants:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">setuptenant</span><span class="o">/</span><span class="n">Thales</span><span class="o">.</span><span class="n">IDPrimeVirtual</span><span class="o">.</span><span class="n">SetupTenant</span> <span class="nb">list</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="installation-parameters-idpv">
+<h3>Installation Parameters (IDPV)<a class="headerlink" href="#installation-parameters-idpv" title="Permalink to this headline">¶</a></h3>
+<p>These parameters will be required for the following installation of the <strong>IDPrime Virtual Client</strong>:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 22%" />
+<col style="width: 22%" />
+<col style="width: 11%" />
+<col style="width: 45%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head" colspan="2"><p>Example</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>TenantID</strong></p></td>
+<td colspan="2"><p>e99e9003-bd9c-45ef-9097-88b7a417c7d4</p></td>
+<td><p>Random unique ID created by script</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>IDPV Server URL</strong></p></td>
+<td colspan="2"><p><a class="reference external" href="http:/">http:/</a>/&lt;ip-of-linux-host&gt;</p></td>
+<td><p>External URL of IDPV container (i.e. Linux host)</p></td>
+</tr>
+</tbody>
+</table>
+<p>To check if the server is running properly you can invoke the swagger interface from your web browser using the IP or hostname of your Linux host:</p>
+<a class=""
+               data-lightbox="group-49bd172f-e441-4138-847e-20b6ada3dfbf"
+               href="_images/Picture61.png"
+               title=""
+               data-title=""
+               ><img src="_images/Picture61.png"
+                     class="align-center"
+                     width="100%"
+                     height="auto"
+                     alt=""/>
+                </a></div>
+</div>
+<div class="section" id="idprime-virtual-client">
+<h2>IDPrime Virtual Client<a class="headerlink" href="#idprime-virtual-client" title="Permalink to this headline">¶</a></h2>
+<p>IDPrime Virtual is currently only working on Windows. On the client side you need two components:</p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="simple">
+<dt><strong>SafeNet Authentication Client (SAC)</strong></dt><dd><p>SAC is used to manage the content of the card as you would with any other regular smart card. IDPrime Virtual is supported by SAC 10.7 and later.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>ALTERNATIVELY: <strong>SafeNet Minidriver</strong></dt><dd><p>It might be sufficient to have SafeNet Minidriver 10.7 (Post GA) or later installed on the client.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>IDPrime Virtual Client (IDPV Client)</strong></dt><dd><p>This client is visible as a tray icon and allows you to connect to and disconnect from the IDPrime Virtual Server to make your virtual smart card visible in your operating system.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+<p>For the IDPV Client installation, the <strong>URL of IDPrime Virtual Server</strong> and the <strong>Tenant ID</strong> are required:</p>
+<a class=""
+               data-lightbox="group-3ca3ce10-b238-49b9-aa60-6aedbc368f32"
+               href="_images/Picture71.png"
+               title=""
+               data-title=""
+               ><img src="_images/Picture71.png"
+                     class="align-center"
+                     width="100%"
+                     height="auto"
+                     alt=""/>
+                </a><p>After the installation of the client you can find the <strong>configuration settings</strong> in the following Registry Key <strong>“HKLM\SOFTWARE\Wow6432Node\Thales\SafeNet IDPrime Virtual”</strong>:</p>
+<a class=""
+               data-lightbox="group-45678b7d-d13c-4a44-b275-e0d7e78679b7"
+               href="_images/Picture81.png"
+               title=""
+               data-title=""
+               ><img src="_images/Picture81.png"
+                     class="align-center"
+                     width="100%"
+                     height="auto"
+                     alt=""/>
+                </a><p>You can download a WORKSHEET document to help you fill in the requiered details here: <a class="reference download internal" download="" href="_downloads/a814f9d657fbd9ddfd24b486260c58d5/IDPV_WORKSHEET.docx"><code class="xref download docutils literal notranslate"><span class="pre">IDPV</span> <span class="pre">WORKSHEET</span></code></a></p>
+<p>Watch the following video to see the user experience when using IDPrime Virtual solution:</p>
+<iframe width="700" height="400" src="https://www.youtube.com/embed/2wrm9nfw4us" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe><ul class="simple">
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Alex Basin.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
