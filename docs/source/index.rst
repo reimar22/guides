@@ -180,9 +180,11 @@ In the STA Console create a new application by following these steps:
 	    - **VALID REDIRECT URL:** <http://my.idpv.com> (any HTTP URL)
 	- Under **User Identity Claims** use *Add claim* to create a new claim called “groups” and set the mapping to **Groups**:
 
+
 .. thumbnail:: /images/Picture9.png
     :align: center
 		      	
+	
 	
 	- **Assign** the new IDPV Application to the relevant User Groups
 
