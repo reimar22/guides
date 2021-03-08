@@ -615,6 +615,94 @@ Appendix
 ^^^^^^^^
 Here are some further tips and tricks related to Linux and other topics.
 
+Using IDPV with SSL using Self-signed TLS Certificate
+*****************************************************
+
+Create a RSA Private Key
+++++++++++++++++++++++++
+
+::
+
+    openssl genrsa -aes128 -out server.key 2048
+    
+Enter and confirm a passphrase (“Password123!” for ex.)
+
+Create a Certificate Signing Request (CSR)
+++++++++++++++++++++++++++++++++++++++++++
+
+::
+
+    openssl req -new -days 365 -key server.key -out example.com.csr
+    
+::
+
+    Country Name (2 letter code) [AU]:US
+    State or Province Name (full name) [Some-State]:New York
+    Locality Name (eg, city) []:Brooklyn
+    Organization Name (eg, company) [Internet Widgits Pty Ltd]:My Business
+    Organizational Unit Name (eg, section) []:Website
+    Common Name (e.g. server FQDN or YOUR name) []:example.com
+    Email Address []:
+
+      Please enter the following 'extra' attributes to be sent with your certificate request
+      A challenge password []:.
+      An optional company name []:
+      
+
+Create a Self-Signed Certificate
+++++++++++++++++++++++++++++++++
+
+::
+
+    openssl x509 -in example.com.csr -out example.com.crt -req -signkey server.key -days 365
+    
+
+Converting the crt certificate and private key to a PFX file
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+::
+
+    openssl pkcs12 -export -out example.com.pfx -inkey server.key -in example.com.crt
+
+Enter and confirm a passphrase (“Password123!” for ex.)
+
+
+::
+
+    chmod 644 example.com.pfx
+    
+    
+Get the certificate thumbprint (you will need it in the latter step)
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+::
+
+    openssl x509 -in example.com.crt -noout -fingerprint
+    
+::
+
+    SHA1 Fingerprint=56:91:CF:53:61:CC:79:FB:1A:4C:B6:FF:3C:CE:95:25:AC:B9:0C:15
+    
+    
+Adjust **appsettings.yml** to include SSL/TLS seetings
+++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+**WebServerConfig**:
+
+	- Change the **ServerPublicUrl:** to HTTPS: **https://example.com**
+	- Add **TlsCertificateThumbprint:** the thumbprint of the certificate created in previous step
+
+**Kestrel**:
+
+	- EndPoints
+	    - Https:
+	      - Url: “https://*:5001”
+	      - Certificate:
+	        - Path: “'/publish/Config/example.com.pfx'”
+	        - Password: the password of the pfx file defined in previous step (“Password123!” for ex.)
+
+
+
 Logging
 *******
 
