@@ -177,7 +177,7 @@ In the STA Console create a new application by following these steps:
 	- Leave the **Access Type** as *Confidential*
 	- Under STA Setup set the following parameters: 
 	    - **ALLOWED FLOW TYPE:** “Authorization Code Flow”
-	    - **VALID REDIRECT URL:** <http://my.idpv.com> (any HTTP URL)
+	    - **VALID REDIRECT URL:** <https://my.idpv.com> (any HTTP URL)
 	- Under **User Identity Claims** use *Add claim* to create a new claim called “groups” and set the mapping to **Groups**:
 
 
@@ -186,7 +186,7 @@ In the STA Console create a new application by following these steps:
 		      	
 	
 	
-	- **Assign** the new IDPV Application to the relevant User Groups
+- **Assign** the new IDPV Application to the relevant User Groups
 
 
 Installation Parameters (STA)
