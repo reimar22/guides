@@ -162,6 +162,8 @@ Under **Groups > Group Maintenance** create three IDPV access groups
 
 .. thumbnail:: /images/Picture1.png
     :align: center
+    
+	Groups management in STA
 
 Create new OIDC Application 
 ***************************
@@ -183,7 +185,8 @@ In the STA Console create a new application by following these steps:
 
 .. thumbnail:: /images/Picture9.png
     :align: center
-		      	
+	
+	Claims configuration in STA	
 	
 	
 - **Assign** the new IDPV Application to the relevant User Groups
@@ -244,6 +247,7 @@ Create a new **“HSM on Demand”** service with FIPS deactivated and download 
 .. thumbnail:: /images/Picture5.png
     :align: center
 
+	HSM on Demand creation wizard in DPoD
 
 .. note:: You have to make sure that you select the **“Remove FIPS restrictions”** option as FIPS mode is currently not supported with DPoD due to a known           limitation in the service.
 
@@ -559,7 +563,9 @@ To check if the server is running properly you can invoke the swagger interface 
 
 .. thumbnail:: /images/Picture6.png
     :align: center
-		
+	
+	Swagger interface of the IDPV server
+	
 
 IDPrime Virtual Client
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -581,12 +587,15 @@ For the IDPV Client installation, the **URL of IDPrime Virtual Server** and the 
 .. thumbnail:: /images/Picture7.png
     :align: center
 
+	IDPV Client configuration
 
 After the installation of the client you can find the **configuration settings** in the following Registry Key **"HKLM\\SOFTWARE\\Wow6432Node\\Thales\\SafeNet IDPrime Virtual"**:
 
 
 .. thumbnail:: /images/Picture8.png
     :align: center
+    
+    IDPV Registry Settings
 
 
 You can download a WORKSHEET document to help you fill in the requiered details here: :download:`IDPV WORKSHEET </pdf/IDPV_WORKSHEET.docx>`
