@@ -386,7 +386,7 @@ Configuration
 
 There are several configuration files that have to be provided in your **“/var/thales/config”** folder on your Docker host. The configuration templates can be found in your **“/tmp/idpv/config”** folder.
 
-appsetting.yml
+appsettings.yml
 **************
 
 The main **configuration parameters for IDPrime Virtual Server** are defined in this file. There are two different templates for **HTTP** and **HTTPS**:
