@@ -685,7 +685,7 @@ Get the certificate thumbprint (you will need it in the latter step)
     SHA1 Fingerprint=56:91:CF:53:61:CC:79:FB:1A:4C:B6:FF:3C:CE:95:25:AC:B9:0C:15
     
     
-Adjust **appsettings.yml** to include SSL/TLS seetings
+Adjust **appsettings.yml** to include SSL/TLS settings
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 **WebServerConfig**:
@@ -702,6 +702,8 @@ Adjust **appsettings.yml** to include SSL/TLS seetings
 	        - Path: “'/publish/Config/example.com.pfx'”
 	        - Password: the password of the pfx file defined in previous step (“Password123!” for ex.)
 
+Run Docker with the new settings and configure IDPV Client to connect to IDPV Server using https://
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 Logging
