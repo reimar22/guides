@@ -685,6 +685,14 @@ Get the certificate thumbprint (you will need it in the latter step)
     SHA1 Fingerprint=56:91:CF:53:61:CC:79:FB:1A:4C:B6:FF:3C:CE:95:25:AC:B9:0C:15
     
     
+Copy the generated pfx to the **/var/thales/config** folder
+    
+::
+
+    cp example.com.pfx /var/thales/config
+    
+    
+    
 Adjust **appsettings.yml** to include SSL/TLS settings
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
