@@ -686,6 +686,7 @@ Get the certificate thumbprint (you will need it in the latter step)
     
     
 Copy the generated pfx to the **/var/thales/config** folder
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     
 ::
 
