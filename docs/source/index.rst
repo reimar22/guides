@@ -634,7 +634,8 @@ Create a Certificate Signing Request (CSR)
 
     openssl req -new -days 365 -key server.key -out example.com.csr
     
-.. literalinclude:: csr
+
+.. code-block:: python
 
     Country Name (2 letter code) [AU]:US
     State or Province Name (full name) [Some-State]:New York
