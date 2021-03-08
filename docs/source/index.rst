@@ -244,7 +244,7 @@ DPoD Configuration
 
 Create a new **“HSM on Demand”** service with FIPS deactivated and download the client package:
 
-.. thumbnail:: /images/Picture5.png
+.. thumbnail:: /images/dpod_idpv.png
     :align: center
 
 	HSM on Demand creation wizard in DPoD
