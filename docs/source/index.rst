@@ -183,6 +183,7 @@ In the STA Console create a new application by following these steps:
 .. thumbnail:: /images/Picture9.png
     :align: center
 		      	
+	
 	- **Assign** the new IDPV Application to the relevant User Groups
 
 
