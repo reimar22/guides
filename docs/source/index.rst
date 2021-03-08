@@ -634,7 +634,7 @@ Create a Certificate Signing Request (CSR)
 
     openssl req -new -days 365 -key server.key -out example.com.csr
     
-::
+.. literalinclude:: csr
 
     Country Name (2 letter code) [AU]:US
     State or Province Name (full name) [Some-State]:New York
@@ -644,9 +644,9 @@ Create a Certificate Signing Request (CSR)
     Common Name (e.g. server FQDN or YOUR name) []:example.com
     Email Address []:
 
-      Please enter the following 'extra' attributes to be sent with your certificate request
-      A challenge password []:.
-      An optional company name []:
+    Please enter the following 'extra' attributes to be sent with your certificate request
+    A challenge password []:.
+    An optional company name []:
       
 
 Create a Self-Signed Certificate
