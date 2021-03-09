@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="_static/tabs.css" type="text/css" />
   <link rel="stylesheet" href="_static/sphinxcontrib-images/LightBox2/lightbox2/css/lightbox.css" type="text/css" />
 
   
@@ -36,6 +37,7 @@
         <script src="_static/doctools.js"></script>
         <script src="_static/clipboard.min.js"></script>
         <script src="_static/copybutton.js"></script>
+        <script src="_static/tabs.js"></script>
         <script src="_static/sphinxcontrib-images/LightBox2/lightbox2/js/jquery-1.11.0.min.js"></script>
         <script src="_static/sphinxcontrib-images/LightBox2/lightbox2/js/lightbox.min.js"></script>
         <script src="_static/sphinxcontrib-images/LightBox2/lightbox2-customize/jquery-noconflict.js"></script>
@@ -120,7 +122,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#id2">Overview</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#installation">Installation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#configuration">Configuration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#appsetting-yml">appsetting.yml</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#appsettings-yml">appsettings.yml</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#idp-configuration-json">idp-configuration.json</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#policy-configuration-json">policy-configuration.json</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#log4net-config">log4net.config</a></li>
@@ -132,6 +134,24 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#idprime-virtual-client">IDPrime Virtual Client</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#appendix">Appendix</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#using-idpv-with-ssl-using-self-signed-tls-certificate">Using IDPV with SSL using Self-signed TLS Certificate</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#create-a-rsa-private-key">Create a RSA Private Key</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#create-a-certificate-signing-request-csr">Create a Certificate Signing Request (CSR)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#create-a-self-signed-certificate">Create a Self-Signed Certificate</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#converting-the-crt-certificate-and-private-key-to-a-pfx-file">Converting the crt certificate and private key to a PFX file</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#get-the-certificate-thumbprint-you-will-need-it-in-the-latter-step">Get the certificate thumbprint (you will need it in the latter step)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#copy-the-generated-pfx-to-the-var-thales-config-folder">Copy the generated pfx to the <strong>/var/thales/config</strong> folder</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#adjust-appsettings-yml-to-include-ssl-tls-settings">Adjust <strong>appsettings.yml</strong> to include SSL/TLS settings</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#logging">Logging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#automatic-restart-of-idpv-server">Automatic Restart of IDPV Server</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mariadb-commands">MariaDB Commands</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#docker-commands">Docker Commands</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#linux-commands">Linux Commands</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -220,7 +240,7 @@
 <li><p><strong>SafeNet Trusted Access (STA)</strong> - MFA via OpenID Connect (OIDC)</p></li>
 <li><dl class="simple">
 <dt><strong>Linux Server</strong></dt><dd><ul>
-<li><p><strong>SafeNet IDPrime Virtual Server (IDPV Server)</strong> - provided as Docker container</p></li>
+<li><p><strong>SafeNet IDPrime Virtual Server (IDPV Server)</strong> - provided as a Docker container</p></li>
 <li><p><strong>MySQL</strong> or <strong>MariaDB</strong> -  IDPV Server configuration</p></li>
 </ul>
 </dd>
@@ -271,14 +291,38 @@
 <div class="section" id="docker">
 <h2>Docker<a class="headerlink" href="#docker" title="Permalink to this headline">¶</a></h2>
 <p>IDPrime Virtual Server is provided as a Docker image. To install and run the latest release of the Docker software you can follow the documentation on the <a class="reference external" href="https://docs.docker.com/engine/install/centos/">Docker web site</a>. The cleanest way would be to add the official repo using the “yum-config-manager” which is part of the “yum-utils” and might have to be installed first:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">yum</span> <span class="n">install</span> <span class="o">-</span><span class="n">y</span> <span class="n">yum</span><span class="o">-</span><span class="n">utils</span>
-
-<span class="n">yum</span><span class="o">-</span><span class="n">config</span><span class="o">-</span><span class="n">manager</span> <span class="o">--</span><span class="n">add</span><span class="o">-</span><span class="n">repo</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">download</span><span class="o">.</span><span class="n">docker</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">linux</span><span class="o">/</span><span class="n">centos</span><span class="o">/</span>
-<span class="n">docker</span><span class="o">-</span><span class="n">ce</span><span class="o">.</span><span class="n">repo</span>
-
-<span class="n">yum</span> <span class="n">install</span> <span class="n">docker</span><span class="o">-</span><span class="n">ce</span> <span class="n">docker</span><span class="o">-</span><span class="n">ce</span><span class="o">-</span><span class="n">cli</span> <span class="n">containerd</span><span class="o">.</span><span class="n">io</span>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" role="tablist"><button aria-controls="panel-0-0-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-0-0-0" name="0-0" role="tab" tabindex="0">RHEL\CentOS</button><button aria-controls="panel-0-0-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-0-0-1" name="0-1" role="tab" tabindex="-1">Ubuntu</button></div><div aria-labelledby="tab-0-0-0" class="sphinx-tabs-panel" id="panel-0-0-0" name="0-0" role="tabpanel" tabindex="0"><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">yum</span> <span class="n">install</span> <span class="o">-</span><span class="n">y</span> <span class="n">yum</span><span class="o">-</span><span class="n">utils</span>
 </pre></div>
 </div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">yum</span><span class="o">-</span><span class="n">config</span><span class="o">-</span><span class="n">manager</span> <span class="o">--</span><span class="n">add</span><span class="o">-</span><span class="n">repo</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">download</span><span class="o">.</span><span class="n">docker</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">linux</span><span class="o">/</span><span class="n">centos</span><span class="o">/</span><span class="n">docker</span><span class="o">-</span><span class="n">ce</span><span class="o">.</span><span class="n">repo</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">yum</span> <span class="n">install</span> <span class="n">docker</span><span class="o">-</span><span class="n">ce</span> <span class="n">docker</span><span class="o">-</span><span class="n">ce</span><span class="o">-</span><span class="n">cli</span> <span class="n">containerd</span><span class="o">.</span><span class="n">io</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-0-0-1" class="sphinx-tabs-panel" hidden="true" id="panel-0-0-1" name="0-1" role="tabpanel" tabindex="0"><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">update</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">apt</span><span class="o">-</span><span class="n">transport</span><span class="o">-</span><span class="n">https</span> <span class="n">ca</span><span class="o">-</span><span class="n">certificates</span> <span class="n">curl</span> <span class="n">gnupg</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">docker</span><span class="o">-</span><span class="n">ce</span> <span class="n">docker</span><span class="o">-</span><span class="n">ce</span><span class="o">-</span><span class="n">cli</span> <span class="n">containerd</span><span class="o">.</span><span class="n">io</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">curl</span> <span class="o">-</span><span class="n">fsSL</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">download</span><span class="o">.</span><span class="n">docker</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">linux</span><span class="o">/</span><span class="n">ubuntu</span><span class="o">/</span><span class="n">gpg</span> <span class="o">|</span> <span class="n">sudo</span> <span class="n">gpg</span> <span class="o">--</span><span class="n">dearmor</span> <span class="o">-</span><span class="n">o</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">keyrings</span><span class="o">/</span><span class="n">docker</span><span class="o">-</span><span class="n">archive</span><span class="o">-</span><span class="n">keyring</span><span class="o">.</span><span class="n">gpg</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">echo</span> <span class="s2">&quot;deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable&quot;</span> <span class="o">|</span> <span class="n">sudo</span> <span class="n">tee</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">apt</span><span class="o">/</span><span class="n">sources</span><span class="o">.</span><span class="n">list</span><span class="o">.</span><span class="n">d</span><span class="o">/</span><span class="n">docker</span><span class="o">.</span><span class="n">list</span> <span class="o">&gt;</span> <span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">null</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">update</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">docker</span><span class="o">-</span><span class="n">ce</span> <span class="n">docker</span><span class="o">-</span><span class="n">ce</span><span class="o">-</span><span class="n">cli</span> <span class="n">containerd</span><span class="o">.</span><span class="n">io</span>
+</pre></div>
+</div>
+</div></div>
 <p>After the installation of Docker you have to start the service:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">systemctl</span> <span class="n">start</span> <span class="n">docker</span>
 
@@ -368,10 +412,10 @@
 <h3>Create IDPV User Groups<a class="headerlink" href="#create-idpv-user-groups" title="Permalink to this headline">¶</a></h3>
 <p>Under <strong>Groups &gt; Group Maintenance</strong> create three IDPV access groups</p>
 <a class=""
-               data-lightbox="group-6ef43ae8-6a55-420e-8567-e78e7bd42b6a"
+               data-lightbox="group-8234e778-4c90-423e-bf2b-459dc3e7b2a7"
                href="_images/Picture11.png"
-               title=""
-               data-title=""
+               title="Groups management in STA"
+               data-title="Groups management in STA"
                ><img src="_images/Picture11.png"
                      class="align-center"
                      width="100%"
@@ -397,7 +441,7 @@
 <li><dl class="simple">
 <dt>Under STA Setup set the following parameters:</dt><dd><ul>
 <li><p><strong>ALLOWED FLOW TYPE:</strong> “Authorization Code Flow”</p></li>
-<li><p><strong>VALID REDIRECT URL:</strong> &lt;<a class="reference external" href="http://my.idpv.com">http://my.idpv.com</a>&gt; (any HTTP URL)</p></li>
+<li><p><strong>VALID REDIRECT URL:</strong> &lt;<a class="reference external" href="https://my.idpv.com">https://my.idpv.com</a>&gt; (any HTTP URL)</p></li>
 </ul>
 </dd>
 </dl>
@@ -406,16 +450,19 @@
 </ul>
 </div></blockquote>
 <a class=""
-               data-lightbox="group-6da3e921-fc73-40cd-9bfd-04e7985fe0bf"
+               data-lightbox="group-6f5e3f5a-e7eb-4aa0-9079-bc0754a22610"
                href="_images/Picture91.png"
-               title="Assign the new IDPV Application to the relevant User Groups"
-               data-title="Assign the new IDPV Application to the relevant User Groups"
+               title="Claims configuration in STA"
+               data-title="Claims configuration in STA"
                ><img src="_images/Picture91.png"
                      class="align-center"
                      width="100%"
                      height="auto"
                      alt=""/>
-                </a></div>
+                </a><ul class="simple">
+<li><p><strong>Assign</strong> the new IDPV Application to the relevant User Groups</p></li>
+</ul>
+</div>
 <div class="section" id="installation-parameters-sta">
 <h3>Installation Parameters (STA)<a class="headerlink" href="#installation-parameters-sta" title="Permalink to this headline">¶</a></h3>
 <p><strong>Part 1:</strong> From the Generic Template Setup section of the STA application settings get the following information which is required later during the further configuration:</p>
@@ -492,11 +539,11 @@ However, there will be a new <strong>DPoD service tile with Key Export functiona
 <h3>DPoD Configuration<a class="headerlink" href="#dpod-configuration" title="Permalink to this headline">¶</a></h3>
 <p>Create a new <strong>“HSM on Demand”</strong> service with FIPS deactivated and download the client package:</p>
 <a class=""
-               data-lightbox="group-8241c12d-6abd-4dad-955d-3f3bba7c221f"
-               href="_images/Picture51.png"
-               title=""
-               data-title=""
-               ><img src="_images/Picture51.png"
+               data-lightbox="group-93cd3d18-20f6-42e4-bb2d-e7e2babb4190"
+               href="_images/dpod_idpv1.png"
+               title="HSM on Demand creation wizard in DPoD"
+               data-title="HSM on Demand creation wizard in DPoD"
+               ><img src="_images/dpod_idpv1.png"
                      class="align-center"
                      width="100%"
                      height="auto"
@@ -636,8 +683,8 @@ However, there will be a new <strong>DPoD service tile with Key Export functiona
 <h3>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h3>
 <p>There are several configuration files that have to be provided in your <strong>“/var/thales/config”</strong> folder on your Docker host. The configuration templates can be found in your <strong>“/tmp/idpv/config”</strong> folder.</p>
 </div>
-<div class="section" id="appsetting-yml">
-<h3>appsetting.yml<a class="headerlink" href="#appsetting-yml" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="appsettings-yml">
+<h3>appsettings.yml<a class="headerlink" href="#appsettings-yml" title="Permalink to this headline">¶</a></h3>
 <p>The main <strong>configuration parameters for IDPrime Virtual Server</strong> are defined in this file. There are two different templates for <strong>HTTP</strong> and <strong>HTTPS</strong>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># This is a yml file. Values are in Key: Value format. Values are not required to be put in qoutes single&#39; or double &quot;</span>
 <span class="n">DatabaseConfig</span><span class="p">:</span>
@@ -788,10 +835,10 @@ However, there will be a new <strong>DPoD service tile with Key Export functiona
 </table>
 <p>To check if the server is running properly you can invoke the swagger interface from your web browser using the IP or hostname of your Linux host:</p>
 <a class=""
-               data-lightbox="group-49bd172f-e441-4138-847e-20b6ada3dfbf"
+               data-lightbox="group-bb30e4d0-767c-451c-85e4-d4e157bc0d98"
                href="_images/Picture61.png"
-               title=""
-               data-title=""
+               title="Swagger interface of the IDPV server"
+               data-title="Swagger interface of the IDPV server"
                ><img src="_images/Picture61.png"
                      class="align-center"
                      width="100%"
@@ -823,10 +870,10 @@ However, there will be a new <strong>DPoD service tile with Key Export functiona
 </div></blockquote>
 <p>For the IDPV Client installation, the <strong>URL of IDPrime Virtual Server</strong> and the <strong>Tenant ID</strong> are required:</p>
 <a class=""
-               data-lightbox="group-3ca3ce10-b238-49b9-aa60-6aedbc368f32"
+               data-lightbox="group-8a25da74-097e-49be-a61d-7facd9dc5292"
                href="_images/Picture71.png"
-               title=""
-               data-title=""
+               title="IDPV Client configuration"
+               data-title="IDPV Client configuration"
                ><img src="_images/Picture71.png"
                      class="align-center"
                      width="100%"
@@ -834,10 +881,10 @@ However, there will be a new <strong>DPoD service tile with Key Export functiona
                      alt=""/>
                 </a><p>After the installation of the client you can find the <strong>configuration settings</strong> in the following Registry Key <strong>“HKLM\SOFTWARE\Wow6432Node\Thales\SafeNet IDPrime Virtual”</strong>:</p>
 <a class=""
-               data-lightbox="group-45678b7d-d13c-4a44-b275-e0d7e78679b7"
+               data-lightbox="group-25d5d9d9-45ad-4241-897b-3df049c3a8f1"
                href="_images/Picture81.png"
-               title=""
-               data-title=""
+               title="IDPV Registry Settings"
+               data-title="IDPV Registry Settings"
                ><img src="_images/Picture81.png"
                      class="align-center"
                      width="100%"
@@ -845,9 +892,214 @@ However, there will be a new <strong>DPoD service tile with Key Export functiona
                      alt=""/>
                 </a><p>You can download a WORKSHEET document to help you fill in the requiered details here: <a class="reference download internal" download="" href="_downloads/a814f9d657fbd9ddfd24b486260c58d5/IDPV_WORKSHEET.docx"><code class="xref download docutils literal notranslate"><span class="pre">IDPV</span> <span class="pre">WORKSHEET</span></code></a></p>
 <p>Watch the following video to see the user experience when using IDPrime Virtual solution:</p>
-<iframe width="700" height="400" src="https://www.youtube.com/embed/2wrm9nfw4us" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe><ul class="simple">
+<iframe width="700" height="400" src="https://www.youtube.com/embed/2wrm9nfw4us" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+<div class="section" id="appendix">
+<h2>Appendix<a class="headerlink" href="#appendix" title="Permalink to this headline">¶</a></h2>
+<p>Here are some further tips and tricks related to Linux and other topics.</p>
+<div class="section" id="using-idpv-with-ssl-using-self-signed-tls-certificate">
+<h3>Using IDPV with SSL using Self-signed TLS Certificate<a class="headerlink" href="#using-idpv-with-ssl-using-self-signed-tls-certificate" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="create-a-rsa-private-key">
+<h4>Create a RSA Private Key<a class="headerlink" href="#create-a-rsa-private-key" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">openssl</span> <span class="n">genrsa</span> <span class="o">-</span><span class="n">aes128</span> <span class="o">-</span><span class="n">out</span> <span class="n">server</span><span class="o">.</span><span class="n">key</span> <span class="mi">2048</span>
+</pre></div>
+</div>
+<p>Enter and confirm a passphrase (“Password123!” for ex.)</p>
+</div>
+<div class="section" id="create-a-certificate-signing-request-csr">
+<h4>Create a Certificate Signing Request (CSR)<a class="headerlink" href="#create-a-certificate-signing-request-csr" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">openssl</span> <span class="n">req</span> <span class="o">-</span><span class="n">new</span> <span class="o">-</span><span class="n">days</span> <span class="mi">365</span> <span class="o">-</span><span class="n">key</span> <span class="n">server</span><span class="o">.</span><span class="n">key</span> <span class="o">-</span><span class="n">out</span> <span class="n">example</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="n">csr</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Country</span> <span class="n">Name</span> <span class="p">(</span><span class="mi">2</span> <span class="n">letter</span> <span class="n">code</span><span class="p">)</span> <span class="p">[</span><span class="n">AU</span><span class="p">]:</span><span class="n">US</span>
+<span class="n">State</span> <span class="ow">or</span> <span class="n">Province</span> <span class="n">Name</span> <span class="p">(</span><span class="n">full</span> <span class="n">name</span><span class="p">)</span> <span class="p">[</span><span class="n">Some</span><span class="o">-</span><span class="n">State</span><span class="p">]:</span><span class="n">New</span> <span class="n">York</span>
+<span class="n">Locality</span> <span class="n">Name</span> <span class="p">(</span><span class="n">eg</span><span class="p">,</span> <span class="n">city</span><span class="p">)</span> <span class="p">[]:</span><span class="n">Brooklyn</span>
+<span class="n">Organization</span> <span class="n">Name</span> <span class="p">(</span><span class="n">eg</span><span class="p">,</span> <span class="n">company</span><span class="p">)</span> <span class="p">[</span><span class="n">Internet</span> <span class="n">Widgits</span> <span class="n">Pty</span> <span class="n">Ltd</span><span class="p">]:</span><span class="n">My</span> <span class="n">Business</span>
+<span class="n">Organizational</span> <span class="n">Unit</span> <span class="n">Name</span> <span class="p">(</span><span class="n">eg</span><span class="p">,</span> <span class="n">section</span><span class="p">)</span> <span class="p">[]:</span><span class="n">Website</span>
+<span class="n">Common</span> <span class="n">Name</span> <span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">g</span><span class="o">.</span> <span class="n">server</span> <span class="n">FQDN</span> <span class="ow">or</span> <span class="n">YOUR</span> <span class="n">name</span><span class="p">)</span> <span class="p">[]:</span><span class="n">example</span><span class="o">.</span><span class="n">com</span>
+<span class="n">Email</span> <span class="n">Address</span> <span class="p">[]:</span>
+
+<span class="n">Please</span> <span class="n">enter</span> <span class="n">the</span> <span class="n">following</span> <span class="s1">&#39;extra&#39;</span> <span class="n">attributes</span> <span class="n">to</span> <span class="n">be</span> <span class="n">sent</span> <span class="k">with</span> <span class="n">your</span> <span class="n">certificate</span> <span class="n">request</span>
+<span class="n">A</span> <span class="n">challenge</span> <span class="n">password</span> <span class="p">[]:</span><span class="o">.</span>
+<span class="n">An</span> <span class="n">optional</span> <span class="n">company</span> <span class="n">name</span> <span class="p">[]:</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="create-a-self-signed-certificate">
+<h4>Create a Self-Signed Certificate<a class="headerlink" href="#create-a-self-signed-certificate" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">openssl</span> <span class="n">x509</span> <span class="o">-</span><span class="ow">in</span> <span class="n">example</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="n">csr</span> <span class="o">-</span><span class="n">out</span> <span class="n">example</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="n">crt</span> <span class="o">-</span><span class="n">req</span> <span class="o">-</span><span class="n">signkey</span> <span class="n">server</span><span class="o">.</span><span class="n">key</span> <span class="o">-</span><span class="n">days</span> <span class="mi">365</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="converting-the-crt-certificate-and-private-key-to-a-pfx-file">
+<h4>Converting the crt certificate and private key to a PFX file<a class="headerlink" href="#converting-the-crt-certificate-and-private-key-to-a-pfx-file" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">openssl</span> <span class="n">pkcs12</span> <span class="o">-</span><span class="n">export</span> <span class="o">-</span><span class="n">out</span> <span class="n">example</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="n">pfx</span> <span class="o">-</span><span class="n">inkey</span> <span class="n">server</span><span class="o">.</span><span class="n">key</span> <span class="o">-</span><span class="ow">in</span> <span class="n">example</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="n">crt</span>
+</pre></div>
+</div>
+<p>Enter and confirm a passphrase (“Password123!” for ex.)</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">chmod</span> <span class="mi">644</span> <span class="n">example</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="n">pfx</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="get-the-certificate-thumbprint-you-will-need-it-in-the-latter-step">
+<h4>Get the certificate thumbprint (you will need it in the latter step)<a class="headerlink" href="#get-the-certificate-thumbprint-you-will-need-it-in-the-latter-step" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">openssl</span> <span class="n">x509</span> <span class="o">-</span><span class="ow">in</span> <span class="n">example</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="n">crt</span> <span class="o">-</span><span class="n">noout</span> <span class="o">-</span><span class="n">fingerprint</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SHA1</span> <span class="n">Fingerprint</span><span class="o">=</span><span class="mi">56</span><span class="p">:</span><span class="mi">91</span><span class="p">:</span><span class="n">CF</span><span class="p">:</span><span class="mi">53</span><span class="p">:</span><span class="mi">61</span><span class="p">:</span><span class="n">CC</span><span class="p">:</span><span class="mi">79</span><span class="p">:</span><span class="n">FB</span><span class="p">:</span><span class="mi">1</span><span class="n">A</span><span class="p">:</span><span class="mi">4</span><span class="n">C</span><span class="p">:</span><span class="n">B6</span><span class="p">:</span><span class="n">FF</span><span class="p">:</span><span class="mi">3</span><span class="n">C</span><span class="p">:</span><span class="n">CE</span><span class="p">:</span><span class="mi">95</span><span class="p">:</span><span class="mi">25</span><span class="p">:</span><span class="n">AC</span><span class="p">:</span><span class="n">B9</span><span class="p">:</span><span class="mi">0</span><span class="n">C</span><span class="p">:</span><span class="mi">15</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="copy-the-generated-pfx-to-the-var-thales-config-folder">
+<h4>Copy the generated pfx to the <strong>/var/thales/config</strong> folder<a class="headerlink" href="#copy-the-generated-pfx-to-the-var-thales-config-folder" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cp</span> <span class="n">example</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="n">pfx</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">thales</span><span class="o">/</span><span class="n">config</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="adjust-appsettings-yml-to-include-ssl-tls-settings">
+<h4>Adjust <strong>appsettings.yml</strong> to include SSL/TLS settings<a class="headerlink" href="#adjust-appsettings-yml-to-include-ssl-tls-settings" title="Permalink to this headline">¶</a></h4>
+<p><strong>WebServerConfig</strong>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Change the <strong>ServerPublicUrl:</strong> to HTTPS: <strong>https://example.com</strong></p></li>
+<li><p>Add <strong>TlsCertificateThumbprint:</strong> the thumbprint of the certificate created in previous step</p></li>
+</ul>
+</div></blockquote>
+<p><strong>Kestrel</strong>:</p>
+<blockquote>
+<div><ul>
+<li><dl>
+<dt>EndPoints</dt><dd><ul>
+<li><p>Https:
+- Url: “<a class="reference external" href="https://">https://</a><a href="#id3"><span class="problematic" id="id4">*</span></a>:5001”
+- Certificate:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Path: “’/publish/Config/example.com.pfx’”</p></li>
+<li><p>Password: the password of the pfx file defined in previous step (“Password123!” for ex.)</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+<div class="section" id="run-docker-with-the-new-settings-and-configure-idpv-client-to-connect-to-idpv-server-using-https">
+<h5>Run Docker with the new settings and configure IDPV Client to connect to IDPV Server using <a class="reference external" href="https://">https://</a><a class="headerlink" href="#run-docker-with-the-new-settings-and-configure-idpv-client-to-connect-to-idpv-server-using-https" title="Permalink to this headline">¶</a></h5>
+</div>
+</div>
+</div>
+<div class="section" id="logging">
+<h3>Logging<a class="headerlink" href="#logging" title="Permalink to this headline">¶</a></h3>
+<p>Adjust <strong>log4net.config</strong> replacing <strong>WARN</strong> values with <strong>DEBUG</strong> value
+Use Docker logs to review possible issues</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span> <span class="n">logs</span> <span class="n">idpv</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="automatic-restart-of-idpv-server">
+<h3>Automatic Restart of IDPV Server<a class="headerlink" href="#automatic-restart-of-idpv-server" title="Permalink to this headline">¶</a></h3>
+<p>To make sure that IDPrime Virtual Server is working when the host is powered up you have to make sure that MariaDB and Docker services as well as the IDPV container are started automatically.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">systemctl</span> <span class="n">enable</span> <span class="n">MariaDB</span>
+<span class="n">systemctl</span> <span class="n">enable</span> <span class="n">docker</span>
+</pre></div>
+</div>
+<p>The <strong>docker run</strong> option <strong>“–restart unless-stopped”</strong> will restart the container whenever the Docker service is started (e.g. after a reboot of the host machine) unless the container was intentionally stopped by using <strong>“docker stop idpv”</strong>.</p>
+</div>
+<div class="section" id="mariadb-commands">
+<h3>MariaDB Commands<a class="headerlink" href="#mariadb-commands" title="Permalink to this headline">¶</a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 24%" />
+<col style="width: 76%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p>List database users</p></td>
+<td><p>SELECT user,host FROM mysql.user;</p></td>
+</tr>
+<tr class="row-even"><td><p>List user rights</p></td>
+<td><p>SHOW GRANTS FOR <a class="reference external" href="mailto:idpvuser&#37;&#52;&#48;127&#46;0&#46;0&#46;1">idpvuser<span>&#64;</span>127<span>&#46;</span>0<span>&#46;</span>0<span>&#46;</span>1</a>;</p></td>
+</tr>
+<tr class="row-odd"><td><p>List databases</p></td>
+<td><p>SHOW DATABASES;</p></td>
+</tr>
+<tr class="row-even"><td><p>Change user password</p></td>
+<td><p>ALTER USER <a class="reference external" href="mailto:'idpvuser'&#37;&#52;&#48;'127&#46;0&#46;0&#46;1">‘idpvuser’<span>&#64;</span>’127<span>&#46;</span>0<span>&#46;</span>0<span>&#46;</span>1</a>’ IDENTIFIED BY ‘&lt;New_Password&gt;’;</p></td>
+</tr>
+<tr class="row-odd"><td><p>Delete user</p></td>
+<td><p>DROP USER <a class="reference external" href="mailto:'idpvuser'&#37;&#52;&#48;'127&#46;0&#46;0&#46;1">‘idpvuser’<span>&#64;</span>’127<span>&#46;</span>0<span>&#46;</span>0<span>&#46;</span>1</a>’;</p></td>
+</tr>
+<tr class="row-even"><td><p>Delete data base</p></td>
+<td><p>DROP DATABASE IDPrimeVirtualServer;</p></td>
+</tr>
+<tr class="row-odd"><td><p>Get current user</p></td>
+<td><p>SELECT current_user() ;</p></td>
+</tr>
+<tr class="row-even"><td><p>Get MariaDB version</p></td>
+<td><p>&gt; mysql -p</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="docker-commands">
+<h3>Docker Commands<a class="headerlink" href="#docker-commands" title="Permalink to this headline">¶</a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 51%" />
+<col style="width: 49%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p>List stopped containers</p></td>
+<td><p>docker ps -a</p></td>
+</tr>
+<tr class="row-even"><td><p>Remove container</p></td>
+<td><p>docker rm &lt;Container-ID or name&gt;</p></td>
+</tr>
+<tr class="row-odd"><td><p>Remove all stopped containers</p></td>
+<td><p>docker rm $(docker ps -aq)</p></td>
+</tr>
+<tr class="row-even"><td><p>Automatically restart the Docker container</p></td>
+<td><p>docker run –restart unless-stopped […]</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="linux-commands">
+<h3>Linux Commands<a class="headerlink" href="#linux-commands" title="Permalink to this headline">¶</a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 34%" />
+<col style="width: 28%" />
+<col style="width: 38%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p><strong>Install Useful Tools</strong></p></td>
+</tr>
+<tr class="row-even"><td><p>Install “telnet”</p></td>
+<td><p>yum install telnet</p></td>
+<td><p>Quickly check port connectivity</p></td>
+</tr>
+<tr class="row-odd"><td><p>Install “unzip”</p></td>
+<td><p>yum install unzip</p></td>
+<td><p>Unpack ZIP files</p></td>
+</tr>
+<tr class="row-even"><td><p>Install “nslookup” and “dig”</p></td>
+<td><p>yum install bind-utils</p></td>
+<td><p>DNS queries</p></td>
+</tr>
+<tr class="row-odd"><td colspan="3"><p><strong>Get Version Information</strong></p></td>
+</tr>
+<tr class="row-even"><td><p>Get CentOS version</p></td>
+<td><p>cat /etc/centos-release</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
 <li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
 </ul>
+</div>
 </div>
 </div>
 

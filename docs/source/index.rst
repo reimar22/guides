@@ -62,14 +62,54 @@ Docker
 
 IDPrime Virtual Server is provided as a Docker image. To install and run the latest release of the Docker software you can follow the documentation on the `Docker web site <https://docs.docker.com/engine/install/centos/>`_. The cleanest way would be to add the official repo using the “yum-config-manager” which is part of the “yum-utils” and might have to be installed first:
 
-::
+.. tabs::
 
-    yum install -y yum-utils
+   .. tab:: RHEL\\CentOS
 
-    yum-config-manager --add-repo https://download.docker.com/linux/centos/
-    docker-ce.repo
+    ::
+    
+        yum install -y yum-utils
 
-    yum install docker-ce docker-ce-cli containerd.io
+    ::
+
+        yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+
+    ::
+
+        yum install docker-ce docker-ce-cli containerd.io
+
+   .. tab:: Ubuntu
+   
+    ::
+   
+        sudo apt-get update
+        
+    ::
+    
+        sudo apt-get install apt-transport-https ca-certificates curl gnupg
+    
+    ::
+        
+        sudo apt-get install docker-ce docker-ce-cli containerd.io
+        
+    ::
+    
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+        
+    ::
+    
+        echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+        
+    ::
+    
+        sudo apt-get update
+        
+    ::
+    
+        sudo apt-get install docker-ce docker-ce-cli containerd.io
+   
+   
+
 
 After the installation of Docker you have to start the service:
 
@@ -387,7 +427,7 @@ Configuration
 There are several configuration files that have to be provided in your **“/var/thales/config”** folder on your Docker host. The configuration templates can be found in your **“/tmp/idpv/config”** folder.
 
 appsettings.yml
-**************
+***************
 
 The main **configuration parameters for IDPrime Virtual Server** are defined in this file. There are two different templates for **HTTP** and **HTTPS**:
 

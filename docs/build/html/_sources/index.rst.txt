@@ -30,7 +30,7 @@ This document should help you to circumvent the pitfalls during your first evalu
 	    - *currently DPoD is supported for test installations only*
 	- **SafeNet Trusted Access (STA)** - MFA via OpenID Connect (OIDC)
 	- **Linux Server**
-	    - **SafeNet IDPrime Virtual Server (IDPV Server)** - provided as Docker container
+	    - **SafeNet IDPrime Virtual Server (IDPV Server)** - provided as a Docker container
 	    - **MySQL** or **MariaDB** -  IDPV Server configuration
 	- **Windows Client** *with*
     	    - **SafeNet Authentication Client (SAC)** or **SafeNet Minidriver**
@@ -62,14 +62,54 @@ Docker
 
 IDPrime Virtual Server is provided as a Docker image. To install and run the latest release of the Docker software you can follow the documentation on the `Docker web site <https://docs.docker.com/engine/install/centos/>`_. The cleanest way would be to add the official repo using the “yum-config-manager” which is part of the “yum-utils” and might have to be installed first:
 
-::
+.. tabs::
 
-    yum install -y yum-utils
+   .. tab:: RHEL\\CentOS
 
-    yum-config-manager --add-repo https://download.docker.com/linux/centos/
-    docker-ce.repo
+    ::
+    
+        yum install -y yum-utils
 
-    yum install docker-ce docker-ce-cli containerd.io
+    ::
+
+        yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+
+    ::
+
+        yum install docker-ce docker-ce-cli containerd.io
+
+   .. tab:: Ubuntu
+   
+    ::
+   
+        sudo apt-get update
+        
+    ::
+    
+        sudo apt-get install apt-transport-https ca-certificates curl gnupg
+    
+    ::
+        
+        sudo apt-get install docker-ce docker-ce-cli containerd.io
+        
+    ::
+    
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+        
+    ::
+    
+        echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+        
+    ::
+    
+        sudo apt-get update
+        
+    ::
+    
+        sudo apt-get install docker-ce docker-ce-cli containerd.io
+   
+   
+
 
 After the installation of Docker you have to start the service:
 
@@ -162,6 +202,8 @@ Under **Groups > Group Maintenance** create three IDPV access groups
 
 .. thumbnail:: /images/Picture1.png
     :align: center
+    
+	Groups management in STA
 
 Create new OIDC Application 
 ***************************
@@ -177,13 +219,17 @@ In the STA Console create a new application by following these steps:
 	- Leave the **Access Type** as *Confidential*
 	- Under STA Setup set the following parameters: 
 	    - **ALLOWED FLOW TYPE:** “Authorization Code Flow”
-	    - **VALID REDIRECT URL:** <http://my.idpv.com> (any HTTP URL)
+	    - **VALID REDIRECT URL:** <https://my.idpv.com> (any HTTP URL)
 	- Under **User Identity Claims** use *Add claim* to create a new claim called “groups” and set the mapping to **Groups**:
+
 
 .. thumbnail:: /images/Picture9.png
     :align: center
-		      	
-	- **Assign** the new IDPV Application to the relevant User Groups
+	
+	Claims configuration in STA	
+	
+	
+- **Assign** the new IDPV Application to the relevant User Groups
 
 
 Installation Parameters (STA)
@@ -238,9 +284,10 @@ DPoD Configuration
 
 Create a new **“HSM on Demand”** service with FIPS deactivated and download the client package:
 
-.. thumbnail:: /images/Picture5.png
+.. thumbnail:: /images/dpod_idpv.png
     :align: center
 
+	HSM on Demand creation wizard in DPoD
 
 .. note:: You have to make sure that you select the **“Remove FIPS restrictions”** option as FIPS mode is currently not supported with DPoD due to a known           limitation in the service.
 
@@ -379,8 +426,8 @@ Configuration
 
 There are several configuration files that have to be provided in your **“/var/thales/config”** folder on your Docker host. The configuration templates can be found in your **“/tmp/idpv/config”** folder.
 
-appsetting.yml
-**************
+appsettings.yml
+***************
 
 The main **configuration parameters for IDPrime Virtual Server** are defined in this file. There are two different templates for **HTTP** and **HTTPS**:
 
@@ -556,7 +603,9 @@ To check if the server is running properly you can invoke the swagger interface 
 
 .. thumbnail:: /images/Picture6.png
     :align: center
-		
+	
+	Swagger interface of the IDPV server
+	
 
 IDPrime Virtual Client
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -578,12 +627,15 @@ For the IDPV Client installation, the **URL of IDPrime Virtual Server** and the 
 .. thumbnail:: /images/Picture7.png
     :align: center
 
+	IDPV Client configuration
 
 After the installation of the client you can find the **configuration settings** in the following Registry Key **"HKLM\\SOFTWARE\\Wow6432Node\\Thales\\SafeNet IDPrime Virtual"**:
 
 
 .. thumbnail:: /images/Picture8.png
     :align: center
+    
+    IDPV Registry Settings
 
 
 You can download a WORKSHEET document to help you fill in the requiered details here: :download:`IDPV WORKSHEET </pdf/IDPV_WORKSHEET.docx>`
@@ -599,7 +651,188 @@ Watch the following video to see the user experience when using IDPrime Virtual 
 
 
 
-Indices and tables
-==================
+Appendix
+^^^^^^^^
+Here are some further tips and tricks related to Linux and other topics.
+
+Using IDPV with SSL using Self-signed TLS Certificate
+*****************************************************
+
+Create a RSA Private Key
+++++++++++++++++++++++++
+
+::
+
+    openssl genrsa -aes128 -out server.key 2048
+    
+Enter and confirm a passphrase (“Password123!” for ex.)
+
+Create a Certificate Signing Request (CSR)
+++++++++++++++++++++++++++++++++++++++++++
+
+::
+
+    openssl req -new -days 365 -key server.key -out example.com.csr
+    
+
+.. code-block:: python
+
+    Country Name (2 letter code) [AU]:US
+    State or Province Name (full name) [Some-State]:New York
+    Locality Name (eg, city) []:Brooklyn
+    Organization Name (eg, company) [Internet Widgits Pty Ltd]:My Business
+    Organizational Unit Name (eg, section) []:Website
+    Common Name (e.g. server FQDN or YOUR name) []:example.com
+    Email Address []:
+
+    Please enter the following 'extra' attributes to be sent with your certificate request
+    A challenge password []:.
+    An optional company name []:
+      
+
+Create a Self-Signed Certificate
+++++++++++++++++++++++++++++++++
+
+::
+
+    openssl x509 -in example.com.csr -out example.com.crt -req -signkey server.key -days 365
+    
+
+Converting the crt certificate and private key to a PFX file
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+::
+
+    openssl pkcs12 -export -out example.com.pfx -inkey server.key -in example.com.crt
+
+Enter and confirm a passphrase (“Password123!” for ex.)
+
+
+::
+
+    chmod 644 example.com.pfx
+    
+    
+Get the certificate thumbprint (you will need it in the latter step)
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+::
+
+    openssl x509 -in example.com.crt -noout -fingerprint
+    
+::
+
+    SHA1 Fingerprint=56:91:CF:53:61:CC:79:FB:1A:4C:B6:FF:3C:CE:95:25:AC:B9:0C:15
+    
+    
+Copy the generated pfx to the **/var/thales/config** folder
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    
+::
+
+    cp example.com.pfx /var/thales/config
+    
+    
+    
+Adjust **appsettings.yml** to include SSL/TLS settings
+++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+**WebServerConfig**:
+
+	- Change the **ServerPublicUrl:** to HTTPS: **https://example.com**
+	- Add **TlsCertificateThumbprint:** the thumbprint of the certificate created in previous step
+
+**Kestrel**:
+
+	- EndPoints
+	    - Https:
+	      - Url: “https://*:5001”
+	      - Certificate:
+	        - Path: “'/publish/Config/example.com.pfx'”
+	        - Password: the password of the pfx file defined in previous step (“Password123!” for ex.)
+
+Run Docker with the new settings and configure IDPV Client to connect to IDPV Server using https://
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Logging
+*******
+
+Adjust **log4net.config** replacing **WARN** values with **DEBUG** value
+Use Docker logs to review possible issues
+  
+::
+  
+    docker logs idpv
+      
+Automatic Restart of IDPV Server
+********************************
+
+To make sure that IDPrime Virtual Server is working when the host is powered up you have to make sure that MariaDB and Docker services as well as the IDPV container are started automatically.
+
+::
+
+    systemctl enable MariaDB
+    systemctl enable docker
+    
+The **docker run** option **“--restart unless-stopped”** will restart the container whenever the Docker service is started (e.g. after a reboot of the host machine) unless the container was intentionally stopped by using **"docker stop idpv"**.
+
+MariaDB Commands
+****************
+
++---------------------+------------------------------------------------------------------+
+| List database users |	SELECT user,host FROM mysql.user;                                |
++---------------------+------------------------------------------------------------------+
+| List user rights    |	SHOW GRANTS FOR idpvuser@127.0.0.1;                              |
++---------------------+------------------------------------------------------------------+
+| List databases      |	SHOW DATABASES;                                                  |
++---------------------+------------------------------------------------------------------+
+| Change user password|	ALTER USER 'idpvuser'@'127.0.0.1' IDENTIFIED BY '<New_Password>';|
++---------------------+------------------------------------------------------------------+
+| Delete user	      |  DROP USER 'idpvuser'@'127.0.0.1';                               |
++---------------------+------------------------------------------------------------------+
+| Delete data base    |	DROP DATABASE IDPrimeVirtualServer;                              |
++---------------------+------------------------------------------------------------------+
+| Get current user    |	SELECT current_user() ;                                          |
++---------------------+------------------------------------------------------------------+
+| Get MariaDB version | > mysql -p                                                       |
++---------------------+------------------------------------------------------------------+
+
+ 
+Docker Commands
+***************
+
++--------------------------------------------+-------------------------------------------+
+| List stopped containers                    |	docker ps -a                             |
++--------------------------------------------+-------------------------------------------+
+| Remove container                           |	docker rm <Container-ID or name>         |
++--------------------------------------------+-------------------------------------------+
+| Remove all stopped containers              |	docker rm $(docker ps -aq)               |
++--------------------------------------------+-------------------------------------------+
+| Automatically restart the Docker container |	docker run --restart unless-stopped […]  |
++--------------------------------------------+-------------------------------------------+
+
+
+Linux Commands
+**************
+
++----------------------------------------------------------------------------------------+
+| **Install Useful Tools**                                                               |
++-----------------------------+------------------------+---------------------------------+
+| Install “telnet”            |	yum install telnet     | Quickly check port connectivity |
++-----------------------------+------------------------+---------------------------------+
+| Install “unzip”             |	yum install unzip      | Unpack ZIP files                |
++-----------------------------+------------------------+---------------------------------+
+| Install “nslookup” and “dig”|	yum install bind-utils | DNS queries                     |
++-----------------------------+------------------------+---------------------------------+
+| **Get Version Information**	                                                         |
++-----------------------------+------------------------+---------------------------------+
+| Get CentOS version          | cat /etc/centos-release|                                 |
++-----------------------------+------------------------+---------------------------------+
+
+
+
+
+
 
 * :ref:`search`
