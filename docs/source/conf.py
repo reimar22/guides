@@ -17,7 +17,7 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'IDPV Installation Guide'
+project = 'IDPrime Virtual'
 copyright = '2021, Alex Basin'
 author = 'Alex Basin'
 
