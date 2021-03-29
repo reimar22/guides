@@ -1,0 +1,936 @@
+---
+title: IDPrime Virtual Evaluation Setup Guide with SafeNet DPoD
+---
+
+::: {.toctree hidden="" maxdepth="3"}
+index
+:::
+
+# Overview
+
+click `&THIS IS A TEST`{.interpreted-text role="guilabel"}
+
+This document should help you to circumvent the pitfalls during your
+first evaluation installation of IDPrime Virtual. The main challenge
+with this solution is the fact that it combines so many modules in one
+solution:
+
+> -   
+>
+>     **SafeNet Luna Network HSM** *or* **Data Protection on Demand (DPoD)**
+>
+>     :   -   *currently DPoD is supported for test installations only*
+>
+> -   **SafeNet Trusted Access (STA)** - MFA via OpenID Connect (OIDC)
+>
+> -   
+>
+>     **Linux Server**
+>
+>     :   -   **SafeNet IDPrime Virtual Server (IDPV Server)** -
+>             provided as a Docker container
+>         -   **MySQL** or **MariaDB** - IDPV Server configuration
+>
+> -   
+>
+>     **Windows Client** *with*
+>
+>     :   -   **SafeNet Authentication Client (SAC)** or **SafeNet
+>             Minidriver**
+>         -   **SafeNet IDPrime Virtual Client (IDPV Client)**
+>         -   **SafeNet IDPrime Virtual Credential Provider**
+
+::: {.note}
+::: {.title}
+Note
+:::
+
+This document should not replace the "IDPrime Virtual Solution Guide"
+that is part of the IDPV software package. However, it tries to provide
+a brief guidance concerning the steps required for a standard evaluation
+setup and might help to avoid general pitfalls.
+:::
+
+# Versions
+
+> -   
+>
+>     **CentOS 7.9** (or similar Linux distro)
+>
+>     :   -   **Docker 20.10.1**
+>
+> -   **MariaDB 10.5.8** (or MySQL)
+>
+> \- **IDPrime Virtual Server 2.1**
+> [(KB0023000)](https://supportportal.gemalto.com/csm?id=kb_article_view&sys_kb_id=62d11890dbff949080b23452399619e9&sysparm_article=KB0023000)
+> -*There is a Full version as well as a Trial version (with 50
+> licenses)* - **IDPrime Virtual Client 2.0.1** (also in
+> [KB0023000](https://supportportal.gemalto.com/csm?id=kb_article_view&sys_kb_id=62d11890dbff949080b23452399619e9&sysparm_article=KB0023000))
+> - **SAC 10.8 R2 for Windows**
+> [(KB0022544)](https://supportportal.gemalto.com/csm?id=kb_article_view&sys_kb_id=0e29e77ddb1ed01091a974233996196d&sysparm_article=KB0022544)
+
+# Prerequisites
+
+You have to prepare some components before you are able to install the
+**IDPrime Virtual Server**.
+
+# Docker
+
+IDPrime Virtual Server is provided as a Docker image. To install and run
+the latest release of the Docker software you can follow the
+documentation on the [Docker web
+site](https://docs.docker.com/engine/install/centos/). The cleanest way
+would be to add the official repo using the "yum-config-manager" which
+is part of the "yum-utils" and might have to be installed first:
+
+::: {.tabs}
+::: {.tab}
+RHEL\\CentOS
+
+``` {.shell}
+yum install -y yum-utils
+```
+
+``` {.shell}
+yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+```
+
+``` {.shell}
+yum install docker-ce docker-ce-cli containerd.io
+```
+:::
+
+::: {.tab}
+Ubuntu
+
+``` {.shell}
+sudo apt-get update
+```
+
+``` {.shell}
+sudo apt-get install apt-transport-https ca-certificates curl gnupg
+```
+
+``` {.shell}
+sudo apt-get install docker-ce docker-ce-cli containerd.io
+```
+
+``` {.shell}
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+```
+
+``` {.shell}
+echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+```
+
+``` {.shell}
+sudo apt-get update
+```
+
+``` {.shell}
+sudo apt-get install docker-ce docker-ce-cli containerd.io
+```
+:::
+:::
+
+After the installation of Docker you have to start the service:
+
+``` {.shell}
+systemctl start docker
+
+docker info
+```
+
+Use the following command to get further information on the Docker
+"bridge" network which will help you identify the container IPs later
+on:
+
+``` {.shell}
+docker network inspect bridge
+```
+
+# MariaDB
+
+IDPrime Virtual Server stores all its configuration information in a
+database. MariaDB is a fork of the MySQL database under full GPL-2
+license. In this scenario it is installed on the same CentOS server as
+the Docker environment. MySQL can also be used. Please follow the
+installation instructions of your selected Database. We will use
+MariaDB.
+
+## Database installation
+
+To install the latest version on a CentOS 7 server you can follow the
+description on the [MariaDB
+website](https://mariadb.com/resources/blog/installing-mariadb-10-on-centos-7-rhel-7/)
+as the CentOS repository only contains MariaDB 5.5. You can use the
+following commands to install the latest 10.x version:
+
+``` {.shell}
+wget https://downloads.mariadb.com/MariaDB/mariadb_repo_setup
+```
+
+``` {.shell}
+chmod +x mariadb_repo_setup
+```
+
+``` {.shell}
+./mariadb_repo_setup
+```
+
+``` {.shell}
+yum install MariaDB-server
+```
+
+## Create Database for IDPV
+
+Create a database for IDPV named *IDPrimeVirtualServer*:
+
+``` {.shell}
+mysql -u root -p
+```
+
+``` {.shell}
+CREATE DATABASE IDPrimeVirtualServer;
+```
+
+## Create IDPV User
+
+You have to **manually create the user account** for IDPrime Virtual
+Server. The following commands will create a user with the required
+access rights and network restrictions (given the default Docker
+"bridge" network is 172.17.0.0/16):
+
+``` {.shell}
+GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, REFERENCES, INDEX, ALTER ON IDPrimeVirtualServer.* TO 'idpvuser'@'172.17.%' IDENTIFIED BY '<db-password>';
+```
+
+## Installation Parameters (MariaDB)
+
+  --------------------------------------------------------------------------
+  Parameter                   Value             Notes
+  --------------------------- ----------------- ----------------------------
+  Database Server IP          172.17.0.1        Standard Docker Host Network
+
+  Database Server Port Number 3306              Default port for MariaDB
+
+  Database User               idpvuser          Can be changed as required
+
+  Database Password           \<db-password\>   Set during database creation
+  --------------------------------------------------------------------------
+
+# SafeNet Trusted Access
+
+IDPrime Virtual relies on **multi-factor authentication via Open ID
+Connect (OIDC)**. For this you need to prepare a valid STA account to
+authenticate against. You also have to collect some parameters required
+later during the configuration process.
+
+## Create IDPV User Groups
+
+Under **Groups \> Group Maintenance** create three IDPV access groups
+
+::: {.thumbnail align="center"}
+/images/Picture1.png
+
+Groups management in STA
+:::
+
+## Create new OIDC Application
+
+In the STA Console create a new application by following these steps:
+
+> -   Go to the **Applications** tab by clicking
+>     `Applications`{.interpreted-text role="guilabel"}
+>
+> -   Click `+`{.interpreted-text role="guilabel"} and serach for
+>     **Generic Template**
+>
+> -   Add the template and rename it to **IDPrime Virtual**
+>
+> -   Select *OIDC* as **Integration Protocol**
+>
+> -   Leave the **Access Type** as *Confidential*
+>
+> -   
+>
+>     Under STA Setup set the following parameters:
+>
+>     :   -   **ALLOWED FLOW TYPE:** "Authorization Code Flow"
+>         -   **VALID REDIRECT URL:** \<<https://my.idpv.com>\> (any
+>             HTTP URL)
+>
+> -   Under **User Identity Claims** use *Add claim* to create a new
+>     claim called "groups" and set the mapping to **Groups**:
+
+::: {.thumbnail align="center"}
+/images/Picture9.png
+
+Claims configuration in STA
+:::
+
+-   **Assign** the new IDPV Application to the relevant User Groups
+
+## Installation Parameters (STA)
+
+**Part 1:** From the Generic Template Setup section of the STA
+application settings get the following information which is required
+later during the further configuration:
+
+  ------------------------------------------------------------------------------------------------------------
+  Parameter           Example
+  ------------------- ----------------------------------------------------------------------------------------
+  **Client ID**       18a6bb02-d311-4f32-a6d0-c65391acc13d
+
+  **Client Secret**   e340dae4-bcab-4fa5-b90a-525b188c79f9
+
+  **Valid Redirect    <http://my.idpv.com>
+  URL**               
+
+  **Authorization End <https://idp.eu.safenetid.com/auth/realms/D92SU4EJGP-STA/protocol/openid-connect/auth>
+  Point URL**         
+
+  **Issuer URL**      <https://idp.eu.safenetid.com/auth/realms/D92SU4EJGP-STA>
+  ------------------------------------------------------------------------------------------------------------
+
+**Part 2:** Copy above **"Authorization End Point URL"**, paste it into
+your web browser, replace **"/auth"** with **"/certs"** and press enter.
+If you are using Firefox, the information will displayed in a readable
+format, other browsers will display a web page in JSON format.
+
+::: {.note}
+::: {.title}
+Note
+:::
+
+The JSON output is hardly readable so you can copy and paste the web
+page content into a JSON formatter, e.g. <https://jsonformatter.org/>.
+To keep the data local you could also use a plugin available for
+Notepad++ (e.g. JSTool).
+:::
+
+From this page you need the following **STA public key parameters** that
+will be required later:
+
+  ----------------------------------------------------------------------------------------------------------
+  Parameter           Example
+  ------------------- --------------------------------------------------------------------------------------
+  **"n"** (Key        y1nA5wvYoTlIPyPxjO62soODuJms96CrNp9UqJIcr0ebY6seW1lGY1zcZ3qdHUtoCFWS0gD7RBdbWjRkHzQE
+  Modulus)            H8s5dkPrTZrjmeQ6yhhKZ3pxwIhkosZBZvsImgExzc0Z1u0ziJwbMEpIH2jOiOh8-zBtb0xSmqpQ_g0P3uct
+                      fXHptEIUEhri4tt6sPg6-LOfVXIEyNdWozjprXSWQ3iWjwO2dP5JSblucrta-ZnPLomQszalrb-Emzxcs8RK
+                      dIzq5jh9ZCnejoe1fET8bwhPZx60BJiBs8Obdjs3OX4raGg04z_2B61T_vMZKIVyYVuO3m-wWt58
+
+  **"e"** (Key        AQAB
+  Exponent)           
+
+  **"kid"** (Key ID)  ohB2F9_d-4xAaQeKtBxmayRuC4PtkDthWliCrLrKJ-Q
+  ----------------------------------------------------------------------------------------------------------
+
+# DPoD
+
+You can either use **Data Protection on Demand (DPoD)** or a **SafeNet
+Luna Network HSM** partition as the "Root of Trust" for the IDPrime
+Virtual Server. In this guide, we\'ll use **DPoD**
+
+::: {.note}
+::: {.title}
+Note
+:::
+
+Currently **DPoD is only supported in test and evaluation scenarios**
+due to the fact that it doesn't support Key Export mode. Therefore the
+size of the partition limits the number of virtual smart card keys that
+can be stored. However, there will be a new **DPoD service tile with Key
+Export functionality** in Q1/2021.
+:::
+
+## DPoD Configuration
+
+Create a new **"HSM on Demand"** service with FIPS deactivated and
+download the client package:
+
+::: {.thumbnail align="center"}
+/images/dpod_idpv.png
+
+HSM on Demand creation wizard in DPoD
+:::
+
+::: {.note}
+::: {.title}
+Note
+:::
+
+You have to make sure that you select the **"Remove FIPS restrictions"**
+option as FIPS mode is currently not supported with DPoD due to a known
+limitation in the service.
+:::
+
+Create a **dpod** folder in the **/tmp** directory on your Linux host
+
+``` {.shell}
+mkdir /tmp/dpod
+```
+
+Download and unpack the DPoD client in your "dpod" folder and deploy a
+copy of these files in a new folder "/var/thales/hsm" which will later
+be used by your Docker container:
+
+``` {.shell}
+unzip setup-dpod.zip
+```
+
+``` {.shell}
+tar xf cvclient-min.tar
+```
+
+``` {.shell}
+chmod a+x setenv
+```
+
+``` {.shell}
+mkdir –p /var/thales/hsm
+```
+
+``` {.shell}
+cp –r * /var/thales/hsm/
+```
+
+::: {.note}
+::: {.title}
+Note
+:::
+
+Keeping a copy of the DPoD files outside the "/var/thales/hsm" folder
+allows running the HSM tools independently from the Docker instance (due
+to different configuration paths in the "Chrystoki.conf" instances).
+:::
+
+To **initialize the DPoD instance** you have to perform the following
+steps:
+
+> -   **Set the environment variables** from within the **"dpod"**
+>     folder (**NOT** in the "/var/thales/hsm" folder):
+>
+>     > ``` {.shell}
+>     > source ./setenv
+>     > ```
+>
+> -   Start **"lunacm"** and **initialize the partition** as well as the
+>     Partition Security Officer ("po") and Crypto Officer ("co") roles:
+>
+>     > ``` {.shell}
+>     > /bin/64/lunacm
+>     > ```
+>     >
+>     > ``` {.shell}
+>     > partition init -label IDPrimeVirtual
+>     > ```
+>
+> -   **Follow the on-screen instruction**
+>
+>     > ``` {.shell}
+>     > role login -n po
+>     > ```
+>     >
+>     > ``` {.shell}
+>     > role init -n co
+>     > ```
+>     >
+>     > ``` {.shell}
+>     > role login -n co
+>     > ```
+>     >
+>     > ``` {.shell}
+>     > role changepw -n co
+>     > ```
+>     >
+>     > ``` {.shell}
+>     > role logout
+>     > ```
+
+The full documentation of DPoD can be found on the [Thales Documentation
+Hub.](https://thalesdocs.com/dpod/)
+
+## Installation Parameters (DPoD)
+
+For the installation of **IDPrime Virtual** Server you need this
+information from your DPoD environment:
+
+  -----------------------------------------------------------------------------
+  Parameter              Example           Notes
+  ---------------------- ----------------- ------------------------------------
+  **Token Serial         1334054146809     Listed after **"lunacm"** start
+  Number**                                 
+
+  **Crypto Officer       \<CO-Password\>   Password set in the last step of the
+  Password**                               partition init
+  -----------------------------------------------------------------------------
+
+# IDPrime Virtual Server
+
+The following sections describe the installation and configuration of
+the **IDPrime Virtual Server**.
+
+## Overview
+
+There are two different versions of IDPrime Virtual Server available:
+
+> -   **Trial Version** -- allows test and evaluation installations
+>     without additional licenses. However, this version is limited to
+>     50 virtual smart cards
+> -   **Full Version** -- requires a dedicated license
+
+The current version is available from the [Thales Support
+Portal](https://supportportal.gemalto.com/csm?id=csm_product&sys_id=16e029a94f0c3b48102400818110c725)
+(requires valid service account).
+
+## Installation
+
+Create an **idpv** folder in **/tmp** on your Linux host
+
+``` {.shell}
+mkdir /tmp/idpv
+```
+
+Download and unzip **IDPrime Virtual Server** package in **idpv** folder
+and load the Docker image using this command:
+
+``` {.shell}
+unzip Thales_IDPrimeVirtualServer-v2.1.0.132.zip
+```
+
+``` {.shell}
+docker load -i virtual_idprime_server.tar.gz
+```
+
+You can verify that the image was imported correctly:
+
+``` {.shell}
+docker images
+```
+
+## Configuration
+
+There are several configuration files that have to be provided in your
+**"/var/thales/config"** folder on your Docker host. The configuration
+templates can be found in your **"/tmp/idpv/config"** folder.
+
+## appsettings.yml
+
+The main **configuration parameters for IDPrime Virtual Server** are
+defined in this file. There are two different templates for **HTTP** and
+**HTTPS**:
+
+``` {.yaml caption="appsettings.yml" linenos=""}
+# This is a yml file. Values are in Key: Value format. Values are not required to be put in qoutes single' or double "
+DatabaseConfig:
+  DatabaseProvider: MariaDB   # (Mandatory) Database provider name. List of supported databases are 'MySQL, MariaDB and MSSQL'
+  ConnectionString: server=172.17.0.1;port=3306; User=idpvuser; Password=<db-password>; Database=IDPrimeVirtualServer;   # (Mandatory) Database connection string
+HSMConfig:
+HSMProvider: Dpod   # (Mandatory) HSM provider name. Supported providers are 'Luna, Dpod ,KeySecure' . Note- Dpod and KeySecure do not support offline virtual token.
+TokenSerial: <token-serial>   # (Mandatory) HSM partition serial number.  #Leave it as blank in case of Key Secure
+TokenPin: <co-password>   # (Mandatory) HSM crypto officer (co) pin. OR #In case of KeySecure the value must be in  format user:password
+WebServerConfig:
+ServerPublicUrl: http://<ip-or-hostname>   # (Mandatory) It is mandatory to provide IDPV server url (public/intranet) which is being accessible from client machines.
+TlsCertificateThumbprint:   # (Optional) Thumbprint is not required in case of HTTP url. However it is recommended to host IDPV server on Https url and to provide thumbprint value of Server TLS certificate.
+Kestrel:   # It is recommended to configure Https settings.
+EndPoints:
+Http:
+  Url: http://*:5000
+```
+
+## idp-configuration.json
+
+The **IDP connection parameters** collected in the "STA" section of this
+document are defined in this configuration file:
+
+``` {.json caption="idp-configuration.json" linenos=""}
+{
+"IdpPublicKeyModulus":"y1nA5wvYoTlIPyPxjO62soODuJms96CrNp9UqJIcr0ebY6seW1lGY1zcZ3qdHUtoCFWS0gD7RBdbWjRkHzQEH8s5dkPrTZrjmeQ6yhhKZ3pxwIhkosZBZvsImgExzc0Z1u0ziJwbMEpIH2jOiOh8-zBtb0xSmqpQ_g0P3uctfXHptEIUE hri4tt6sPg6-LOfVXIEyNdWozjprXSWQ3iW6jwO2dP5JSblucrta-ZnPLomQszalrb-Emzxcs8RKdIzq5jh9ZCnejoe1fET8bgH aTwhPZxMD6Oi0BJiBs8Obdjs3OX4raGg04z_2B61T_vMZKIVyYVuO3m-wWt58",
+"IdpPublicKeyExponent":"AQAB",
+"IdpKeyId":"ohB2F9_d-4xAaQeKtBxmayRuC4PtkDthWliCrLrKJ-Q",
+"IdpClientId":"18a6bb02-d311-4f32-a6d0-c65391acc13d",
+"IdpIssuerUrl":"https://idp.eu.safenetid.com/auth/realms/D92SU4EJGP-STA",
+"IdpRedirectUrl":"http://my.idpv.com",
+"JwtExpiration":"0000001e",
+"JwtGroupClaim":"groups",
+"JwtUserClaim":"preferred_username",
+"JwtAdminWhiteList":"",
+"IDPrimeVirtualAdmin":"IDPV_Admins",
+"IDPrimeVirtualUser":"IDPV_Users",
+"OfflineTokenEnabledGroup":"IDPV_OfflineEnabled"
+}
+```
+
+## policy-configuration.json
+
+This file defines some **policy settings** for IDPrime Virtual:
+
+``` {.json caption="policy-configuration.json" linenos=""}
+{
+   "UserPinPolicy": {
+      "MaxRetries": 5,
+      "IsMustChange": false
+   },
+   "AdminPinPolicy": {
+      "MaxRetries": 5,
+      "IsMustChange": false
+   },
+   "OfflineTokenPolicy": {
+      "ValidityDurationInHours": 120,
+      "PrivateKeyExportLevel": "All"
+   }
+}
+```
+
+## log4net.config
+
+This configuration file allows setting the **log levels** for different
+modules to "ERROR", "WARN", "INFO" or "DEBUG".
+
+# Running the Server
+
+To run the **Docker instance** you have to execute the following
+command:
+
+``` {.shell}
+docker run -d --name idpv -it -v /var/thales/config:/publish/Config/ -v /var/thales/hsm:/usr/local/hsm/ -p 80:5000 -p 443:5001 --restart unless-stopped idprimevirtual_server:2.1.0.132
+```
+
+The following **"docker run"** command switches might be helpful to
+understand:
+
+> -   
+>
+>     **-d** This will "detach" the container from the bash console to run it in the backgro
+>
+>     :   -   Use the following command to check the console output of a
+>             detached container
+>
+>         ``` {.shell}
+>         docker logs idpv
+>         ```
+>
+>         -   Otherwise, the run-command will remain open to display
+>             messages on the console which might be helpful when
+>             running it the first time to immediately see if the server
+>             starts without errors
+>
+> -   **\--restart unless-stopped** Will restart the Docker container on
+>     server reboot, unless the container is in the stopped state
+
+In case changes have to be made to the configuration, the Docker
+container will have to be stopped, removed and run again
+
+To stop the container:
+
+``` {.shell}
+docker stop idpv
+```
+
+To remove the container:
+
+``` {.shell}
+docker rm idpv
+```
+
+Make the required changes to the configuration and execute the Docker
+**run** command to start **IDPV Server**
+
+``` {.shell}
+docker run -d --name idpv -it -v /var/thales/config:/publish/Config/ -v /var/thales/hsm:/usr/local/hsm/ -p 80:5000 -p 443:5001 --restart unless-stopped idprimevirtual_server:2.1.0.132
+```
+
+See Docker web site for the full documentation of ["docker
+run".](https://docs.docker.com/engine/reference/run/)
+
+## Tenant Creation
+
+After the initial configuration of the IDPrime Virtual Server you have
+to create your first tenant on the server instance. IDPV Server supports
+multiple tenants. Therefore you have to create separate IDP and policy
+configuration files for each tenant.
+
+To start the "SetupTenant" script you have to open a "bash" shell within
+the container:
+
+``` {.shell}
+docker exec -it idpv bash
+```
+
+``` {.shell}
+setuptenant/Thales.IDPrimeVirtual.SetupTenant create -i /publish/Config/idp-configuration.json -p /publish/Config/policy-configuration.json -a "sta -client-secret>" -k false
+```
+
+After successful execution of the script it will display the **tenant
+information** generated from the configuration files. You will find this
+information also in a file with the name "\<TenantId\>.txt" in the
+folder "/publish/Tenant/".
+
+You can also call the script with the "list" parameter to get all
+existing tenants:
+
+``` {.shell}
+setuptenant/Thales.IDPrimeVirtual.SetupTenant list
+```
+
+## Installation Parameters (IDPV)
+
+These parameters will be required for the following installation of the
+**IDPrime Virtual Client**:
+
+  --------------- ----------------------- -------------------------------
+  Parameter       Example                 Notes
+
+  --------------- ----------------------- -------------------------------
+
++=========================+=========================+============+==================================================+
+\| **TenantID** \| e99e9003-bd9c-45ef-9097-88b7a417c7d4 \| Random unique
+ID created by script \|
++\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--+
+\| **IDPV Server URL** \| <http://>\<ip-of-linux-host\> \| External URL
+of IDPV container (i.e. Linux host) \|
++\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--+
+
+To check if the server is running properly you can invoke the swagger
+interface from your web browser using the IP or hostname of your Linux
+host:
+
+::: {.thumbnail align="center"}
+/images/Picture6.png
+
+Swagger interface of the IDPV server
+:::
+
+# IDPrime Virtual Client
+
+IDPrime Virtual is currently only working on Windows. On the client side
+you need two components:
+
+> -   
+>
+>     **SafeNet Authentication Client (SAC)**
+>
+>     :   SAC is used to manage the content of the card as you would
+>         with any other regular smart card. IDPrime Virtual is
+>         supported by SAC 10.7 and later.
+>
+> -   
+>
+>     ALTERNATIVELY: **SafeNet Minidriver**
+>
+>     :   It might be sufficient to have SafeNet Minidriver 10.7 (Post
+>         GA) or later installed on the client.
+>
+> -   
+>
+>     **IDPrime Virtual Client (IDPV Client)**
+>
+>     :   This client is visible as a tray icon and allows you to
+>         connect to and disconnect from the IDPrime Virtual Server to
+>         make your virtual smart card visible in your operating system.
+
+For the IDPV Client installation, the **URL of IDPrime Virtual Server**
+and the **Tenant ID** are required:
+
+::: {.thumbnail align="center"}
+/images/Picture7.png
+
+IDPV Client configuration
+:::
+
+After the installation of the client you can find the **configuration
+settings** in the following Registry Key
+**\"HKLM\\SOFTWARE\\Wow6432Node\\Thales\\SafeNet IDPrime Virtual\"**:
+
+::: {.thumbnail align="center"}
+/images/Picture8.png
+
+IDPV Registry Settings
+:::
+
+You can download a WORKSHEET document to help you fill in the requiered
+details here:
+`IDPV WORKSHEET </pdf/IDPV_WORKSHEET.docx>`{.interpreted-text
+role="download"}
+
+Watch the following video to see the user experience when using IDPrime
+Virtual solution:
+
+```{=html}
+<iframe width="700" height="400" src="https://www.youtube.com/embed/2wrm9nfw4us" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+```
+# Appendix
+
+Here are some further tips and tricks related to Linux and other topics.
+
+## Using IDPV with SSL using Self-signed TLS Certificate
+
+### Create a RSA Private Key
+
+``` {.shell}
+openssl genrsa -aes128 -out server.key 2048
+```
+
+Enter and confirm a passphrase ("Password123!" for ex.)
+
+### Create a Certificate Signing Request (CSR)
+
+``` {.shell}
+openssl req -new -days 365 -key server.key -out example.com.csr
+```
+
+``` {.shell}
+Country Name (2 letter code) [AU]:US
+State or Province Name (full name) [Some-State]:New York
+Locality Name (eg, city) []:Brooklyn
+Organization Name (eg, company) [Internet Widgits Pty Ltd]:My Business
+Organizational Unit Name (eg, section) []:Website
+Common Name (e.g. server FQDN or YOUR name) []:example.com
+Email Address []:
+
+Please enter the following 'extra' attributes to be sent with your certificate request
+A challenge password []:.
+An optional company name []:
+```
+
+### Create a Self-Signed Certificate
+
+``` {.shell}
+openssl x509 -in example.com.csr -out example.com.crt -req -signkey server.key -days 365
+```
+
+### Converting the crt certificate and private key to a PFX file
+
+``` {.shell}
+openssl pkcs12 -export -out example.com.pfx -inkey server.key -in example.com.crt
+```
+
+Enter and confirm a passphrase ("Password123!" for ex.)
+
+``` {.shell}
+chmod 644 example.com.pfx
+```
+
+### Get the certificate thumbprint (you will need it in the latter step)
+
+``` {.shell}
+openssl x509 -in example.com.crt -noout -fingerprint
+```
+
+``` {.shell}
+SHA1 Fingerprint=56:91:CF:53:61:CC:79:FB:1A:4C:B6:FF:3C:CE:95:25:AC:B9:0C:15
+```
+
+### Copy the generated pfx to the **/var/thales/config** folder
+
+``` {.shell}
+cp example.com.pfx /var/thales/config
+```
+
+### Adjust **appsettings.yml** to include SSL/TLS settings
+
+**WebServerConfig**:
+
+> -   Change the **ServerPublicUrl:** to HTTPS: **https://example.com**
+> -   Add **TlsCertificateThumbprint:** the thumbprint of the
+>     certificate created in previous step
+
+**Kestrel**:
+
+> -   
+>
+>     EndPoints
+>
+>     :   -   Https:
+>             -   Url: "<https://>\*:5001"
+>             -   Certificate:
+>                 -   Path: "\'/publish/Config/example.com.pfx\'"
+>                 -   Password: the password of the pfx file defined in
+>                     previous step ("Password123!" for ex.)
+
+#### Run Docker with the new settings and configure IDPV Client to connect to IDPV Server using <https://>
+
+## Logging
+
+Adjust **log4net.config** replacing **WARN** values with **DEBUG** value
+Use Docker logs to review possible issues
+
+``` {.shell}
+docker logs idpv
+```
+
+## Automatic Restart of IDPV Server
+
+To make sure that IDPrime Virtual Server is working when the host is
+powered up you have to make sure that MariaDB and Docker services as
+well as the IDPV container are started automatically.
+
+``` {.shell}
+systemctl enable MariaDB
+systemctl enable docker
+```
+
+The **docker run** option **"\--restart unless-stopped"** will restart
+the container whenever the Docker service is started (e.g. after a
+reboot of the host machine) unless the container was intentionally
+stopped by using **\"docker stop idpv\"**.
+
+## MariaDB Commands
+
++----------------+-----------------------------------------------------+
+| List database  | SELECT user,host FROM mysql.user;                   |
+| users          |                                                     |
++----------------+-----------------------------------------------------+
+| List user      | SHOW GRANTS FOR <idpvuser@127.0.0.1>;               |
+| rights         |                                                     |
++----------------+-----------------------------------------------------+
+| List databases | SHOW DATABASES;                                     |
++----------------+-----------------------------------------------------+
+| Change user    | ALTER USER \'<idpvuser'@'127.0.0.1>\' IDENTIFIED BY |
+| password       | \'\<New_Password\>\';                               |
++----------------+-----------------------------------------------------+
+| Delete user    | > DROP USER \'<idpvuser'@'127.0.0.1>\';             |
++----------------+-----------------------------------------------------+
+| Delete data    | DROP DATABASE IDPrimeVirtualServer;                 |
+| base           |                                                     |
++----------------+-----------------------------------------------------+
+| Get current    | SELECT current_user() ;                             |
+| user           |                                                     |
++----------------+-----------------------------------------------------+
+| Get MariaDB    | \> mysql -p                                         |
+| version        |                                                     |
++----------------+-----------------------------------------------------+
+
+## Docker Commands
+
++-----------------------------------+-----------------------------------+
+| List stopped containers           | > docker ps -a                    |
++-----------------------------------+-----------------------------------+
+| Remove container                  | > docker rm \<Container-ID or     |
+|                                   | > name\>                          |
++-----------------------------------+-----------------------------------+
+| Remove all stopped containers     | > docker rm \$(docker ps -aq)     |
++-----------------------------------+-----------------------------------+
+| Automatically restart the Docker  | > docker run \--restart           |
+| container                         | > unless-stopped \[...\]          |
++-----------------------------------+-----------------------------------+
+
+## Linux Commands
+
+  -----------------------------------------------------------------------
+  **Install Useful Tools**
+
+  Install "telnet" \| yum install telnet \| Quickly check port
+  connectivity
+
+  Install "unzip" \| yum install unzip \| Unpack ZIP files
+
+  Install "nslookup" and "dig"\| yum install bind-utils \| DNS queries
+
+  **Get Version Information**
+
+  Get CentOS version \| cat /etc/centos-release\|
+  -----------------------------------------------------------------------
+
+-   `search`{.interpreted-text role="ref"}
