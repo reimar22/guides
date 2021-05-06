@@ -10,10 +10,10 @@ IDPrime Virtual Evaluation Setup Guide with SafeNet DPoD
 .. toctree::
    :hidden:
    :maxdepth: 3
-   
+
 
    index
-      
+
 
 
 
@@ -26,7 +26,7 @@ Overview
 
 This document should help you to circumvent the pitfalls during your first evaluation installation of IDPrime Virtual. The main challenge with this solution is the fact that it combines so many modules in one solution:
 
-	- **SafeNet Luna Network HSM** *or* **Data Protection on Demand (DPoD)** 
+	- **SafeNet Luna Network HSM** *or* **Data Protection on Demand (DPoD)**
 	    - *currently DPoD is supported for test installations only*
 	- **SafeNet Trusted Access (STA)** - MFA via OpenID Connect (OIDC)
 	- **Linux Server**
@@ -48,8 +48,8 @@ Versions
 	    - **MariaDB 10.5.8** (or MySQL)
 	- **IDPrime Virtual Server 2.1** `(KB0023000) <https://supportportal.gemalto.com/csm?id=kb_article_view&sys_kb_id=62d11890dbff949080b23452399619e9&sysparm_article=KB0023000>`_
 	    -*There is a Full version as well as a Trial version (with 50 licenses)*
-	- **IDPrime Virtual Client 2.0.1** (also in `KB0023000 <https://supportportal.gemalto.com/csm?id=kb_article_view&sys_kb_id=62d11890dbff949080b23452399619e9&sysparm_article=KB0023000>`_)	
-	- **SAC 10.8 R2 for Windows** `(KB0022544) <https://supportportal.gemalto.com/csm?id=kb_article_view&sys_kb_id=0e29e77ddb1ed01091a974233996196d&sysparm_article=KB0022544>`_ 
+	- **IDPrime Virtual Client 2.0.1** (also in `KB0023000 <https://supportportal.gemalto.com/csm?id=kb_article_view&sys_kb_id=62d11890dbff949080b23452399619e9&sysparm_article=KB0023000>`_)
+	- **SAC 10.8 R2 for Windows** `(KB0022544) <https://supportportal.gemalto.com/csm?id=kb_article_view&sys_kb_id=0e29e77ddb1ed01091a974233996196d&sysparm_article=KB0022544>`_
 
 
 Prerequisites
@@ -67,7 +67,7 @@ IDPrime Virtual Server is provided as a Docker image. To install and run the lat
    .. tab:: RHEL\\CentOS
 
     ::
-    
+
         yum install -y yum-utils
 
     ::
@@ -79,36 +79,36 @@ IDPrime Virtual Server is provided as a Docker image. To install and run the lat
         yum install docker-ce docker-ce-cli containerd.io
 
    .. tab:: Ubuntu
-   
+
     ::
-   
+
         sudo apt-get update
-        
+
     ::
-    
+
         sudo apt-get install apt-transport-https ca-certificates curl gnupg
-    
+
     ::
-        
+
         sudo apt-get install docker-ce docker-ce-cli containerd.io
-        
+
     ::
-    
+
         curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-        
+
     ::
-    
+
         echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-        
+
     ::
-    
+
         sudo apt-get update
-        
+
     ::
-    
+
         sudo apt-get install docker-ce docker-ce-cli containerd.io
-   
-   
+
+
 
 
 After the installation of Docker you have to start the service:
@@ -202,10 +202,10 @@ Under **Groups > Group Maintenance** create three IDPV access groups
 
 .. thumbnail:: /images/Picture1.png
     :align: center
-    
+
 	Groups management in STA
 
-Create new OIDC Application 
+Create new OIDC Application
 ***************************
 
 In the STA Console create a new application by following these steps:
@@ -217,7 +217,7 @@ In the STA Console create a new application by following these steps:
 	- Add the template and rename it to **IDPrime Virtual**
 	- Select *OIDC* as **Integration Protocol**
 	- Leave the **Access Type** as *Confidential*
-	- Under STA Setup set the following parameters: 
+	- Under STA Setup set the following parameters:
 	    - **ALLOWED FLOW TYPE:** “Authorization Code Flow”
 	    - **VALID REDIRECT URL:** <https://my.idpv.com> (any HTTP URL)
 	- Under **User Identity Claims** use *Add claim* to create a new claim called “groups” and set the mapping to **Groups**:
@@ -225,10 +225,10 @@ In the STA Console create a new application by following these steps:
 
 .. thumbnail:: /images/Picture9.png
     :align: center
-	
-	Claims configuration in STA	
-	
-	
+
+	Claims configuration in STA
+
+
 - **Assign** the new IDPV Application to the relevant User Groups
 
 
@@ -238,7 +238,7 @@ Installation Parameters (STA)
 **Part 1:** From the Generic Template Setup section of the STA application settings get the following information which is required later during the further configuration:
 
 +---------------------------------+--------------------------------------------------------------------------------------+
-| Parameter                       | Example                                                                              | 
+| Parameter                       | Example                                                                              |
 +=================================+======================================================================================+
 | **Client ID**                   | 18a6bb02-d311-4f32-a6d0-c65391acc13d                                                 |
 +---------------------------------+--------------------------------------------------------------------------------------+
@@ -248,7 +248,7 @@ Installation Parameters (STA)
 +---------------------------------+--------------------------------------------------------------------------------------+
 | **Authorization End Point URL** | https://idp.eu.safenetid.com/auth/realms/D92SU4EJGP-STA/protocol/openid-connect/auth |
 +---------------------------------+--------------------------------------------------------------------------------------+
-| **Issuer URL**                  | https://idp.eu.safenetid.com/auth/realms/D92SU4EJGP-STA                              |            
+| **Issuer URL**                  | https://idp.eu.safenetid.com/auth/realms/D92SU4EJGP-STA                              |
 +---------------------------------+--------------------------------------------------------------------------------------+
 
 **Part 2:** Copy above **“Authorization End Point URL”**, paste it into your web browser, replace **“/auth”** with **“/certs”** and press enter. If you are using Firefox, the information will displayed in a readable format, other browsers will display a web page in JSON format.
@@ -258,7 +258,7 @@ Installation Parameters (STA)
 From this page you need the following **STA public key parameters** that will be required later:
 
 +---------------------------------+--------------------------------------------------------------------------------------+
-| Parameter                       | Example                                                                              | 
+| Parameter                       | Example                                                                              |
 +=================================+======================================================================================+
 | **“n”** (Key Modulus)           | y1nA5wvYoTlIPyPxjO62soODuJms96CrNp9UqJIcr0ebY6seW1lGY1zcZ3qdHUtoCFWS0gD7RBdbWjRkHzQE |
 |                                 | H8s5dkPrTZrjmeQ6yhhKZ3pxwIhkosZBZvsImgExzc0Z1u0ziJwbMEpIH2jOiOh8-zBtb0xSmqpQ_g0P3uct |
@@ -325,13 +325,13 @@ Download and unpack the DPoD client in your “dpod” folder and deploy a copy 
 To **initialize the DPoD instance** you have to perform the following steps:
 
 	- **Set the environment variables** from within the **“dpod”** folder (**NOT** in the “/var/thales/hsm” folder):
-		
+
 		::
 
 		    source ./setenv
 
 	- Start **“lunacm”** and **initialize the partition** as well as the Partition Security Officer (“po”) and Crypto Officer (“co”) roles:
-		
+
 		::
 
 	   	    /bin/64/lunacm
@@ -347,7 +347,7 @@ To **initialize the DPoD instance** you have to perform the following steps:
 	   	    role login -n po
 
 		::
-	   	    
+
 		    role init -n co
 
 		::
@@ -371,9 +371,9 @@ Installation Parameters (DPoD)
 For the installation of **IDPrime Virtual** Server you need this information from your DPoD environment:
 
 +---------------------------------+-----------------+------------------------------------------------------+
-| Parameter                       | Example         | Notes                                                | 
+| Parameter                       | Example         | Notes                                                |
 +=================================+=================+======================================================+
-| **Token Serial Number**         | 1334054146809   | Listed after **“lunacm”** start                      |   
+| **Token Serial Number**         | 1334054146809   | Listed after **“lunacm”** start                      |
 +---------------------------------+-----------------+------------------------------------------------------+
 | **Crypto Officer Password**     | <CO-Password>   | Password set in the last step of the partition init  |
 +---------------------------------+-----------------+------------------------------------------------------+
@@ -448,7 +448,7 @@ The main **configuration parameters for IDPrime Virtual Server** are defined in 
     EndPoints:
     Http:
       Url: http://*:5000
- 
+
 
 idp-configuration.json
 **********************
@@ -520,10 +520,10 @@ The following **“docker run”** command switches might be helpful to understa
 
 	- **-d** This will “detach” the container from the bash console to run it in the backgro
 	    - Use the following command to check the console output of a detached container
- 
-		:: 
 
-		    docker logs idpv 
+		::
+
+		    docker logs idpv
 
 
 	    - Otherwise, the run-command will remain open to display messages on the console which might be helpful when running it the first time to immediately see if the server starts without errors
@@ -573,7 +573,7 @@ To start the “SetupTenant” script you have to open a “bash” shell within
 
 ::
 
-    setuptenant/Thales.IDPrimeVirtual.SetupTenant create -i /publish/Config/idp-configuration.json -p /publish/Config/policy-configuration.json -a "sta -client-secret>" -k false
+    setuptenant/Thales.IDPrimeVirtual.SetupTenant create -i /publish/Config/idp-configuration.json -p /publish/Config/policy-configuration.json -a "<sta -client-secret>" -k false
 
 
 After successful execution of the script it will display the **tenant information** generated from the configuration files. You will find this information also in a file with the name “<TenantId>.txt” in the folder “/publish/Tenant/”.
@@ -591,9 +591,9 @@ Installation Parameters (IDPV)
 These parameters will be required for the following installation of the **IDPrime Virtual Client**:
 
 +-------------------------+--------------------------------------+--------------------------------------------------+
-| Parameter               | Example                              | Notes                                            | 
+| Parameter               | Example                              | Notes                                            |
 +=========================+=========================+============+==================================================+
-| **TenantID**            | e99e9003-bd9c-45ef-9097-88b7a417c7d4 | Random unique ID created by script               |   
+| **TenantID**            | e99e9003-bd9c-45ef-9097-88b7a417c7d4 | Random unique ID created by script               |
 +-------------------------+--------------------------------------+--------------------------------------------------+
 | **IDPV Server URL**     | http://<ip-of-linux-host>            | External URL of IDPV container (i.e. Linux host) |
 +-------------------------+--------------------------------------+--------------------------------------------------+
@@ -603,9 +603,9 @@ To check if the server is running properly you can invoke the swagger interface 
 
 .. thumbnail:: /images/Picture6.png
     :align: center
-	
+
 	Swagger interface of the IDPV server
-	
+
 
 IDPrime Virtual Client
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -634,7 +634,7 @@ After the installation of the client you can find the **configuration settings**
 
 .. thumbnail:: /images/Picture8.png
     :align: center
-    
+
     IDPV Registry Settings
 
 
@@ -664,7 +664,7 @@ Create a RSA Private Key
 ::
 
     openssl genrsa -aes128 -out server.key 2048
-    
+
 Enter and confirm a passphrase (“Password123!” for ex.)
 
 Create a Certificate Signing Request (CSR)
@@ -673,7 +673,7 @@ Create a Certificate Signing Request (CSR)
 ::
 
     openssl req -new -days 365 -key server.key -out example.com.csr
-    
+
 
 .. code-block:: python
 
@@ -688,7 +688,7 @@ Create a Certificate Signing Request (CSR)
     Please enter the following 'extra' attributes to be sent with your certificate request
     A challenge password []:.
     An optional company name []:
-      
+
 
 Create a Self-Signed Certificate
 ++++++++++++++++++++++++++++++++
@@ -696,7 +696,7 @@ Create a Self-Signed Certificate
 ::
 
     openssl x509 -in example.com.csr -out example.com.crt -req -signkey server.key -days 365
-    
+
 
 Converting the crt certificate and private key to a PFX file
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -711,29 +711,29 @@ Enter and confirm a passphrase (“Password123!” for ex.)
 ::
 
     chmod 644 example.com.pfx
-    
-    
+
+
 Get the certificate thumbprint (you will need it in the latter step)
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 ::
 
     openssl x509 -in example.com.crt -noout -fingerprint
-    
+
 ::
 
     SHA1 Fingerprint=56:91:CF:53:61:CC:79:FB:1A:4C:B6:FF:3C:CE:95:25:AC:B9:0C:15
-    
-    
+
+
 Copy the generated pfx to the **/var/thales/config** folder
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    
+
 ::
 
     cp example.com.pfx /var/thales/config
-    
-    
-    
+
+
+
 Adjust **appsettings.yml** to include SSL/TLS settings
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -760,11 +760,11 @@ Logging
 
 Adjust **log4net.config** replacing **WARN** values with **DEBUG** value
 Use Docker logs to review possible issues
-  
+
 ::
-  
+
     docker logs idpv
-      
+
 Automatic Restart of IDPV Server
 ********************************
 
@@ -774,7 +774,7 @@ To make sure that IDPrime Virtual Server is working when the host is powered up 
 
     systemctl enable MariaDB
     systemctl enable docker
-    
+
 The **docker run** option **“--restart unless-stopped”** will restart the container whenever the Docker service is started (e.g. after a reboot of the host machine) unless the container was intentionally stopped by using **"docker stop idpv"**.
 
 MariaDB Commands
@@ -798,7 +798,7 @@ MariaDB Commands
 | Get MariaDB version | > mysql -p                                                       |
 +---------------------+------------------------------------------------------------------+
 
- 
+
 Docker Commands
 ***************
 
