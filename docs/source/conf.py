@@ -38,7 +38,8 @@ extensions = [
     'sphinxcontrib.images',
     'sphinx_copybutton',
     'sphinx_rtd_theme',
-    'sphinx_tabs.tabs'
+    'sphinx_tabs.tabs',
+    'sphinxext.adaptive_youtube'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
