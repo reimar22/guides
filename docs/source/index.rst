@@ -639,7 +639,7 @@ You can download a WORKSHEET document to help you fill in the requiered details 
 
 Watch the following video to see the user experience when using IDPrime Virtual solution:
 
-.. youtube:: https://www.youtube.com/watch?v=0Smp8AubB3U
+.. youtube:: 0Smp8AubB3U
 
 Appendix
 ^^^^^^^^
