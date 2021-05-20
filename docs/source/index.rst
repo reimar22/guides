@@ -27,7 +27,7 @@ Overview
 This document should help you to circumvent the pitfalls during your first evaluation installation of IDPrime Virtual. The main challenge with this solution is the fact that it combines so many modules in one solution:
 
 	- **SafeNet Luna Network HSM** *or* **Data Protection on Demand (DPoD)**
-	    - *currently DPoD is supported for test installations only*
+	    - *currently DPoD doesn't support offline operations*
 	- **SafeNet Trusted Access (STA)** - MFA via OpenID Connect (OIDC)
 	- **Linux Server**
 	    - **SafeNet IDPrime Virtual Server (IDPV Server)** - provided as a Docker container
@@ -201,7 +201,6 @@ Create IDPV User Groups
 Under **Groups > Group Maintenance** create three IDPV access groups
 
 .. thumbnail:: /images/Picture1.png
-    :align: center
 
 	Groups management in STA
 
@@ -224,7 +223,7 @@ In the STA Console create a new application by following these steps:
 
 
 .. thumbnail:: /images/Picture9.png
-    :align: center
+
 
 	Claims configuration in STA
 
@@ -285,7 +284,6 @@ DPoD Configuration
 Create a new **“HSM on Demand”** service with FIPS deactivated and download the client package:
 
 .. thumbnail:: /images/dpod_idpv.png
-    :align: center
 
 	HSM on Demand creation wizard in DPoD
 
@@ -602,7 +600,6 @@ These parameters will be required for the following installation of the **IDPrim
 To check if the server is running properly you can invoke the swagger interface from your web browser using the IP or hostname of your Linux host:
 
 .. thumbnail:: /images/Picture6.png
-    :align: center
 
 	Swagger interface of the IDPV server
 
@@ -625,7 +622,6 @@ IDPrime Virtual is currently only working on Windows. On the client side you nee
 For the IDPV Client installation, the **URL of IDPrime Virtual Server** and the **Tenant ID** are required:
 
 .. thumbnail:: /images/Picture7.png
-    :align: center
 
 	IDPV Client configuration
 
@@ -633,7 +629,6 @@ After the installation of the client you can find the **configuration settings**
 
 
 .. thumbnail:: /images/Picture8.png
-    :align: center
 
     IDPV Registry Settings
 
