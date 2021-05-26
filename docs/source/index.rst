@@ -574,6 +574,8 @@ To start the “SetupTenant” script you have to open a “bash” shell within
     setuptenant/Thales.IDPrimeVirtual.SetupTenant create -i /publish/Config/idp-configuration.json -p /publish/Config/policy-configuration.json -a "<sta -client-secret>" -k false
 
 
+.. note:: Please be aware that by setting the parameter "-k false" it is not possible to use offline mode for this tenant. If a HSM with a key export partition is used and you would like to use offline mode, then set this paremeter to "true".
+
 After successful execution of the script it will display the **tenant information** generated from the configuration files. You will find this information also in a file with the name “<TenantId>.txt” in the folder “/publish/Tenant/”.
 
 You can also call the script with the “list” parameter to get all existing tenants:
