@@ -26,8 +26,8 @@ Overview
 
 This document should help you to circumvent the pitfalls during your first evaluation installation of IDPrime Virtual. The main challenge with this solution is the fact that it combines so many modules in one solution:
 
-	- **SafeNet Luna Network HSM** *or* **Data Protection on Demand (DPoD)**
-	    - *currently DPoD doesn't support offline operations*
+	- **SafeNet Luna Network HSM** *or* **Data Protection on Demand (DPoD)** or **Keysecure**
+	    - *currently DPoD support offline operations but you need to choose the service with Key Export*
 	- **SafeNet Trusted Access (STA)** - MFA via OpenID Connect (OIDC)
 	- **Linux Server**
 	    - **SafeNet IDPrime Virtual Server (IDPV Server)** - provided as a Docker container
@@ -272,16 +272,19 @@ From this page you need the following **STA public key parameters** that will be
 DPoD
 ^^^^
 
-You can either use **Data Protection on Demand (DPoD)** or a **SafeNet Luna Network HSM** partition as the “Root of Trust” for the IDPrime Virtual Server. In this guide, we'll use **DPoD**
+You can either use **Data Protection on Demand (DPoD)** or a **SafeNet Luna Network HSM** or **KeySecure** partition as the “Root of Trust” for the IDPrime Virtual Server. In this guide, we'll use **DPoD**
 
-.. note:: Currently **DPoD is only supported in test and evaluation scenarios** due to the fact that it doesn’t support Key Export mode. Therefore the           size of the partition limits the number of virtual smart card keys that can be stored.
-              However, there will be a new **DPoD service tile with Key Export functionality** in Q1/2021.
+.. note:: Currently **DPoD is only supported in test and evaluation scenarios**. Therefore the size of the partition limits the number of virtual smart card keys that can be stored.
+              
 
 
 DPoD Configuration
 ******************
 
 Create a new **“HSM on Demand”** service with FIPS deactivated and download the client package:
+
+.. note:: If you want to use the offline mode, you need to create the **HSM on Demand with Key Export** service in DPoD.
+
 
 .. thumbnail:: /images/dpod_idpv.png
 
@@ -642,6 +645,9 @@ You can download a WORKSHEET document to help you fill in the requiered details 
 Watch the following video to see the user experience when using IDPrime Virtual solution:
 
 .. youtube:: 0Smp8AubB3U
+
+.. note:: you can verify if the Offline mode is enabled in the folder C:\ProgramData\Thales\IDPrimeVirtual. You should have a folder created and inside this folder, there are 3 files: Hg / Uc / Ud. To active the client for the offline mode, it is necessary at least one crypto operation with the Virtual smart card. Example: Sign a document with a certificate. In the tray bottom, will appear a blue lock, to show that it is in a offline mode.
+
 
 Appendix
 ^^^^^^^^
