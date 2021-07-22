@@ -26,8 +26,8 @@ Overview
 
 This document should help you to circumvent the pitfalls during your first evaluation installation of IDPrime Virtual. The main challenge with this solution is the fact that it combines so many modules in one solution:
 
-	- **SafeNet Luna Network HSM** *or* **Data Protection on Demand (DPoD)**
-	    - *currently DPoD doesn't support offline operations*
+	- **SafeNet Luna Network HSM** *or* **Data Protection on Demand (DPoD)** or **Keysecure**
+	    - *DPoD support offline operations when you choose **HSM on demand with Key Export**
 	- **SafeNet Trusted Access (STA)** - MFA via OpenID Connect (OIDC)
 	- **Linux Server**
 	    - **SafeNet IDPrime Virtual Server (IDPV Server)** - provided as a Docker container
@@ -46,9 +46,9 @@ Versions
         - **CentOS 7.9** (or similar Linux distro)
             - **Docker 20.10.1**
 	    - **MariaDB 10.5.8** (or MySQL)
-	- **IDPrime Virtual Server 2.1** `(KB0023000) <https://supportportal.gemalto.com/csm?id=kb_article_view&sys_kb_id=62d11890dbff949080b23452399619e9&sysparm_article=KB0023000>`_
+	- **IDPrime Virtual Server 2.2.1 GA** `(KB0024497) <https://supportportal.gemalto.com/csm?id=kb_article_view&sys_kb_id=5c8919e91b093490b840c84b1d4bcb56&sysparm_article=KB0024497>`_
 	    -*There is a Full version as well as a Trial version (with 50 licenses)*
-	- **IDPrime Virtual Client 2.0.1** (also in `KB0023000 <https://supportportal.gemalto.com/csm?id=kb_article_view&sys_kb_id=62d11890dbff949080b23452399619e9&sysparm_article=KB0023000>`_)
+	- **IDPrime Virtual Client 2.2.0** (also in `KB0024497 <https://supportportal.gemalto.com/csm?id=kb_article_view&sys_kb_id=5c8919e91b093490b840c84b1d4bcb56&sysparm_article=KB00244970>`_)
 	- **SAC 10.8 R2 for Windows** `(KB0022544) <https://supportportal.gemalto.com/csm?id=kb_article_view&sys_kb_id=0e29e77ddb1ed01091a974233996196d&sysparm_article=KB0022544>`_
 
 
@@ -282,6 +282,7 @@ DPoD Configuration
 ******************
 
 Create a new **“HSM on Demand”** service with FIPS deactivated and download the client package:
+For the Offline mode, choose **“HSM on Demand with Key Export”**
 
 .. thumbnail:: /images/dpod_idpv.png
 
@@ -405,7 +406,7 @@ Download and unzip **IDPrime Virtual Server** package in **idpv** folder and loa
 
 ::
 
-    unzip Thales_IDPrimeVirtualServer-v2.1.0.132.zip
+    unzip Thales_IDPrimeVirtualServer-v2.2.1.209.zip
 
 ::
 
@@ -610,7 +611,7 @@ IDPrime Virtual Client
 ^^^^^^^^^^^^^^^^^^^^^^
 
 
-IDPrime Virtual is currently only working on Windows. On the client side you need two components:
+IDPrime Virtual is currently working on Windows and Linux. On the client side you need two components:
 
 	- **SafeNet Authentication Client (SAC)**
             SAC is used to manage the content of the card as you would with any other regular smart card. IDPrime Virtual is supported by SAC 10.7 and later.
@@ -619,8 +620,7 @@ IDPrime Virtual is currently only working on Windows. On the client side you nee
 
 	- **IDPrime Virtual Client (IDPV Client)**
             This client is visible as a tray icon and allows you to connect to and disconnect from the IDPrime Virtual Server to make your virtual smart card visible in your operating system.
-
-
+	    
 For the IDPV Client installation, the **URL of IDPrime Virtual Server** and the **Tenant ID** are required:
 
 .. thumbnail:: /images/Picture7.png
@@ -637,7 +637,8 @@ After the installation of the client you can find the **configuration settings**
 
 You can download a WORKSHEET document to help you fill in the requiered details here: :download:`IDPV WORKSHEET </pdf/IDPV_WORKSHEET.docx>`
 
-
+.. important:: To use the Offline mode, it is needed at least one crypto operation with the virtual card, for example sign a document. To check if it working,
+check the C:\ProgramData\Thales\IDPrimeVirtual. You should have a folder for each card the user has. Inside the folder, there are 3 files: Hg / Uc / Ud. 
 
 Watch the following video to see the user experience when using IDPrime Virtual solution:
 
